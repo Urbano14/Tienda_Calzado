@@ -1,0 +1,34 @@
+# Entorno virtual
+.venv/
+venv/
+env/
+ENV/
+
+# Archivos de Python compilados
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pdb
+*.egg
+*.egg-info/
+dist/
+build/
+
+# Archivos de Django
+db.sqlite3
+media/
+staticfiles/
+*.log
+
+# Archivos de entorno
+.env
+*.env
+
+# Configuración de VSCode y PyCharm
+.vscode/
+.idea/
+
+# Otros temporales
+.DS_Store
+Thumbs.db
