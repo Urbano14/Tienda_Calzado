@@ -1,7 +1,7 @@
 Tienda de Calzado
 
 Proyecto académico desarrollado en Django para la asignatura de Planificación y Gestión de Proyectos Informáticos.
-El objetivo es construir una tienda virtual por iteraciones, aplicando buenas prácticas de gestión, control de versiones y desarrollo en equipo.
+
 
 Guía rápida para el equipo
 1. Clonar el proyecto
