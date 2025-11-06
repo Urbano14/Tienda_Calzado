@@ -7,25 +7,270 @@
         }
     },
     {
+        "model": "productos.marca",
+        "pk": 2,
+        "fields": {
+            "nombre": "Adidas"
+        }
+    },
+    {
+        "model": "productos.marca",
+        "pk": 3,
+        "fields": {
+            "nombre": "Puma"
+        }
+    },
+    {
+        "model": "productos.marca",
+        "pk": 4,
+        "fields": {
+            "nombre": "New Balance"
+        }
+    },
+    {
         "model": "productos.categoria",
         "pk": 1,
         "fields": {
             "nombre": "Zapatillas Deportivas",
-            "descripcion": "Calzado deportivo para correr o entrenar"
+            "descripcion": "Calzado cómodo y ligero para el entrenamiento o uso diario"
+        }
+    },
+    {
+        "model": "productos.categoria",
+        "pk": 2,
+        "fields": {
+            "nombre": "Botas Urbanas",
+            "descripcion": "Diseñadas para la ciudad con materiales resistentes y estilo moderno"
+        }
+    },
+    {
+        "model": "productos.categoria",
+        "pk": 3,
+        "fields": {
+            "nombre": "Sandalias",
+            "descripcion": "Calzado fresco para verano y climas cálidos"
+        }
+    },
+    {
+        "model": "productos.categoria",
+        "pk": 4,
+        "fields": {
+            "nombre": "Running",
+            "descripcion": "Zapatillas técnicas diseñadas para correr largas distancias"
         }
     },
     {
         "model": "productos.producto",
         "pk": 1,
         "fields": {
-            "nombre": "Nike Air Zoom",
-            "descripcion": "Zapatillas ligeras y cómodas para entrenamiento diario",
-            "precio": "89.99",
-            "precio_oferta": "79.99",
+            "nombre": "Nike Air Zoom Pegasus 39",
+            "descripcion": "Zapatillas de running con amortiguación reactiva y malla transpirable.",
+            "precio": "119.99",
+            "precio_oferta": "99.99",
             "marca": 1,
-            "categoria": 1, 
+            "categoria": 4,
+            "color": "Azul",
+            "material": "Malla sintética",
             "esta_disponible": true,
             "es_destacado": true,
+            "fecha_creacion": "2025-11-06T10:00:00Z",
+            "fecha_actualizacion": "2025-11-06T10:00:00Z"
+        }
+    },
+    {
+        "model": "productos.producto",
+        "pk": 2,
+        "fields": {
+            "nombre": "Adidas Ultraboost 22",
+            "descripcion": "Comodidad máxima con suela Boost y ajuste adaptativo Primeknit.",
+            "precio": "159.99",
+            "precio_oferta": "139.99",
+            "marca": 2,
+            "categoria": 4,
+            "color": "Negro",
+            "material": "Primeknit reciclado",
+            "esta_disponible": true,
+            "es_destacado": true,
+            "fecha_creacion": "2025-11-06T10:00:00Z",
+            "fecha_actualizacion": "2025-11-06T10:00:00Z"
+        }
+    },
+    {
+        "model": "productos.producto",
+        "pk": 3,
+        "fields": {
+            "nombre": "Puma Cali Dream",
+            "descripcion": "Zapatillas de estilo retro con suela gruesa y diseño urbano.",
+            "precio": "89.99",
+            "precio_oferta": null,
+            "marca": 3,
+            "categoria": 1,
+            "color": "Blanco",
+            "material": "Cuero sintético",
+            "esta_disponible": true,
+            "es_destacado": false,
+            "fecha_creacion": "2025-11-06T10:00:00Z",
+            "fecha_actualizacion": "2025-11-06T10:00:00Z"
+        }
+    },
+    {
+        "model": "productos.producto",
+        "pk": 4,
+        "fields": {
+            "nombre": "New Balance 574 Classic",
+            "descripcion": "Modelo icónico con mezcla de gamuza y malla, ideal para el día a día.",
+            "precio": "99.99",
+            "precio_oferta": "89.99",
+            "marca": 4,
+            "categoria": 1,
+            "color": "Gris",
+            "material": "Gamuza y malla",
+            "esta_disponible": true,
+            "es_destacado": false,
+            "fecha_creacion": "2025-11-06T10:00:00Z",
+            "fecha_actualizacion": "2025-11-06T10:00:00Z"
+        }
+    },
+    {
+        "model": "productos.producto",
+        "pk": 5,
+        "fields": {
+            "nombre": "Nike Air Force 1 Low",
+            "descripcion": "Clásico modelo urbano con suela gruesa y acabado premium.",
+            "precio": "109.99",
+            "precio_oferta": null,
+            "marca": 1,
+            "categoria": 2,
+            "color": "Blanco",
+            "material": "Cuero",
+            "esta_disponible": true,
+            "es_destacado": true,
+            "fecha_creacion": "2025-11-06T10:00:00Z",
+            "fecha_actualizacion": "2025-11-06T10:00:00Z"
+        }
+    },
+    {
+        "model": "productos.producto",
+        "pk": 6,
+        "fields": {
+            "nombre": "Adidas Stan Smith",
+            "descripcion": "Zapatillas minimalistas de cuero ecológico, ícono del estilo casual.",
+            "precio": "99.99",
+            "precio_oferta": "84.99",
+            "marca": 2,
+            "categoria": 1,
+            "color": "Blanco / Verde",
+            "material": "Cuero ecológico",
+            "esta_disponible": true,
+            "es_destacado": true,
+            "fecha_creacion": "2025-11-06T10:00:00Z",
+            "fecha_actualizacion": "2025-11-06T10:00:00Z"
+        }
+    },
+    {
+        "model": "productos.producto",
+        "pk": 7,
+        "fields": {
+            "nombre": "Puma Future Rider",
+            "descripcion": "Modelo vintage con colores vibrantes y amortiguación cómoda.",
+            "precio": "89.99",
+            "precio_oferta": "79.99",
+            "marca": 3,
+            "categoria": 1,
+            "color": "Rojo / Azul",
+            "material": "Textil y goma",
+            "esta_disponible": true,
+            "es_destacado": false,
+            "fecha_creacion": "2025-11-06T10:00:00Z",
+            "fecha_actualizacion": "2025-11-06T10:00:00Z"
+        }
+    },
+    {
+        "model": "productos.producto",
+        "pk": 8,
+        "fields": {
+            "nombre": "New Balance 327",
+            "descripcion": "Inspiradas en los modelos de los años 70, con un diseño moderno.",
+            "precio": "119.99",
+            "precio_oferta": "99.99",
+            "marca": 4,
+            "categoria": 1,
+            "color": "Azul Marino",
+            "material": "Nylon y ante",
+            "esta_disponible": true,
+            "es_destacado": false,
+            "fecha_creacion": "2025-11-06T10:00:00Z",
+            "fecha_actualizacion": "2025-11-06T10:00:00Z"
+        }
+    },
+    {
+        "model": "productos.producto",
+        "pk": 9,
+        "fields": {
+            "nombre": "Adidas Terrex Free Hiker",
+            "descripcion": "Botas técnicas ligeras para senderismo y aventura.",
+            "precio": "179.99",
+            "precio_oferta": "149.99",
+            "marca": 2,
+            "categoria": 2,
+            "color": "Gris / Verde",
+            "material": "Malla resistente",
+            "esta_disponible": true,
+            "es_destacado": true,
+            "fecha_creacion": "2025-11-06T10:00:00Z",
+            "fecha_actualizacion": "2025-11-06T10:00:00Z"
+        }
+    },
+    {
+        "model": "productos.producto",
+        "pk": 10,
+        "fields": {
+            "nombre": "Nike Air Max 90",
+            "descripcion": "Clásico modelo con cámara de aire visible y diseño retro.",
+            "precio": "139.99",
+            "precio_oferta": "119.99",
+            "marca": 1,
+            "categoria": 1,
+            "color": "Negro / Blanco",
+            "material": "Malla y cuero sintético",
+            "esta_disponible": true,
+            "es_destacado": false,
+            "fecha_creacion": "2025-11-06T10:00:00Z",
+            "fecha_actualizacion": "2025-11-06T10:00:00Z"
+        }
+    },
+    {
+        "model": "productos.producto",
+        "pk": 11,
+        "fields": {
+            "nombre": "Puma Leadcat 2.0",
+            "descripcion": "Chanclas cómodas con logo clásico de Puma, ideales para verano.",
+            "precio": "29.99",
+            "precio_oferta": "24.99",
+            "marca": 3,
+            "categoria": 3,
+            "color": "Negro",
+            "material": "Goma sintética",
+            "esta_disponible": true,
+            "es_destacado": false,
+            "fecha_creacion": "2025-11-06T10:00:00Z",
+            "fecha_actualizacion": "2025-11-06T10:00:00Z"
+        }
+    },
+    {
+        "model": "productos.producto",
+        "pk": 12,
+        "fields": {
+            "nombre": "Adidas Adilette Comfort",
+            "descripcion": "Sandalias acolchadas con correa suave y plantilla ergonómica.",
+            "precio": "34.99",
+            "precio_oferta": "29.99",
+            "marca": 2,
+            "categoria": 3,
+            "color": "Azul Marino",
+            "material": "EVA y goma",
+            "esta_disponible": true,
+            "es_destacado": false,
             "fecha_creacion": "2025-11-06T10:00:00Z",
             "fecha_actualizacion": "2025-11-06T10:00:00Z"
         }
