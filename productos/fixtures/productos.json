@@ -1,0 +1,33 @@
+[
+    {
+        "model": "productos.marca",
+        "pk": 1,
+        "fields": {
+            "nombre": "Nike"
+        }
+    },
+    {
+        "model": "productos.categoria",
+        "pk": 1,
+        "fields": {
+            "nombre": "Zapatillas Deportivas",
+            "descripcion": "Calzado deportivo para correr o entrenar"
+        }
+    },
+    {
+        "model": "productos.producto",
+        "pk": 1,
+        "fields": {
+            "nombre": "Nike Air Zoom",
+            "descripcion": "Zapatillas ligeras y cómodas para entrenamiento diario",
+            "precio": "89.99",
+            "precio_oferta": "79.99",
+            "marca": 1,
+            "categoria": 1, 
+            "esta_disponible": true,
+            "es_destacado": true,
+            "fecha_creacion": "2025-11-06T10:00:00Z",
+            "fecha_actualizacion": "2025-11-06T10:00:00Z"
+        }
+    }
+]
