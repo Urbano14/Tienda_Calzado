@@ -15,11 +15,19 @@ pip install -r requirements.txt
 
 3. Ejecutar el servidor local
 python manage.py migrate
+python manage.py loaddata productos
 python manage.py runserver
 
 
-Abrir en el navegador:
-http://127.0.0.1:8000/
+rutas_diponibles:
+- descripcion: "Vista HTML con listado de productos"
+      url: "http://127.0.0.1:8000/productos/"
+- descripcion: "API REST - Productos"
+      url: "http://127.0.0.1:8000/api/productos/"
+- descripcion: "API REST - Categorías"
+      url: "http://127.0.0.1:8000/api/categorias/"
+- descripcion: "Panel de administración"
+      url: "http://127.0.0.1:8000/admin/"
 
 4. Flujo de trabajo con Git
 

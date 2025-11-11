@@ -1,0 +1,74 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Catálogo - Zapatería Hermanos Parera</title>
+    <link rel="stylesheet" href="{% static 'css/estilo.css' %}">
+</head>
+
+<body>
+    <header class="encabezado">
+        <h1>Zapatería Hermanos Parera</h1>
+        <p>Con los parera, zapatillas para cualquiera.</p>
+    </header>
+
+    <main class="contenedor">
+        <section class="filtros">
+            <form method="get">
+                <label for="categoria">Filtrar por categoría:</label>
+                <select name="categoria" id="categoria" onchange="this.form.submit()">
+                    <option value="">Todas</option>
+                    {% for cat in categorias %}
+                        <option value="{{ cat.id }}"
+                            {% if categoria_seleccionada and cat.id == categoria_seleccionada.id %}
+                                selected
+                            {% endif %}
+                        >
+                            {{ cat.nombre }}
+                        </option>
+                    {% endfor %}
+                </select>
+                <noscript><button type="submit">Filtrar</button></noscript>
+            </form>
+        </section>
+        {% if productos %}
+        <div class="grid">
+            {% for producto in productos %}
+            <div class="tarjeta">
+                <div class="img-box">
+                    {% if producto.imagen %}
+                    <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}">
+                    {% else %}
+                    <img src="{% static 'images/placeholder.png' %}" alt="Sin imagen">
+                    {% endif %}
+                </div>
+                <div class="contenido">
+                    <h2>{{ producto.nombre }}</h2>
+                    <p class="precio">
+                        {% if producto.precio_oferta %}
+                        <span class="oferta">{{ producto.precio_oferta }} €</span>
+                        <span class="tachado">{{ producto.precio }} €</span>
+                        {% else %}
+                        <span>{{ producto.precio }} €</span>
+                        {% endif %}
+                    </p>
+                    <p class="categoria">{{ producto.categoria.nombre }}</p>
+                    <button class="boton">Ver detalles</button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="vacio">No hay productos disponibles 😢</p>
+        {% endif %}
+    </main>
+
+    <footer class="pie">
+        <p>© 2025 Zapatería Hermanos Parera</p>
+    </footer>
+</body>
+
+</html>
