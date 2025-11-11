@@ -16,6 +16,24 @@
     </header>
 
     <main class="contenedor">
+        <section class="filtros">
+            <form method="get">
+                <label for="categoria">Filtrar por categoría:</label>
+                <select name="categoria" id="categoria" onchange="this.form.submit()">
+                    <option value="">Todas</option>
+                    {% for cat in categorias %}
+                        <option value="{{ cat.id }}"
+                            {% if categoria_seleccionada and cat.id == categoria_seleccionada.id %}
+                                selected
+                            {% endif %}
+                        >
+                            {{ cat.nombre }}
+                        </option>
+                    {% endfor %}
+                </select>
+                <noscript><button type="submit">Filtrar</button></noscript>
+            </form>
+        </section>
         {% if productos %}
         <div class="grid">
             {% for producto in productos %}
