@@ -15,6 +15,10 @@ class CategoriaListView(generics.ListAPIView):
     serializer_class = CategoriaSerializer
 
 
+def home(request):
+    return render(request, "productos/home.html")
+
+
 def lista_productos(request):
     categoria_id = request.GET.get("categoria")
 
