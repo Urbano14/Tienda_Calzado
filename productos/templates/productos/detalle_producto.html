@@ -7,76 +7,159 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{{ producto.nombre }} - Zapatería Hermanos Parera</title>
     <link rel="stylesheet" href="{% static 'css/estilo.css' %}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 
-<body>
-    <header class="encabezado">
-        <h1>{{ producto.nombre }}</h1>
-        <p>{{ producto.categoria.nombre }} · {{ producto.marca.nombre }}</p>
+<body class="catalogo detalle-page">
+    <header class="hero hero--detalle">
+        <div class="hero__nav contenedor">
+            <div class="brand">
+                <img class="brand__logo" src="{% static 'images/logoZHM.png' %}" alt="Logo Zapatería Hermanos Parera">
+                <p class="brand__eyebrow">Ficha técnica</p>
+                <h1>{{ producto.nombre }}</h1>
+                <p class="brand__tagline">
+                    {{ producto.categoria.nombre }}
+                    {% if producto.marca %} &mdash; {{ producto.marca.nombre }}{% endif %}
+                </p>
+            </div>
+            <a class="boton boton--outline" href="{% url 'lista-productos' %}">Volver al catálogo</a>
+        </div>
+        <div class="hero__content contenedor hero__content--detalle">
+            <div class="hero__text">
+                <p class="hero__eyebrow">Colección exclusiva</p>
+                <p class="hero__lead">
+                    {{ producto.descripcion|default:"Descubrí la comodidad y el estilo característico de Hermanos Parera en cada paso." }}
+                </p>
+                <div class="hero__stats hero__stats--detalle">
+                    <div>
+                        <span>
+                            {% if producto.precio_oferta %}
+                                {{ producto.precio_oferta }} &euro;
+                            {% else %}
+                                {{ producto.precio }} &euro;
+                            {% endif %}
+                        </span>
+                        <p>Precio final</p>
+                    </div>
+                    <div>
+                        <span>{{ tallas|length }}</span>
+                        <p>Tallas disponibles</p>
+                    </div>
+                </div>
+            </div>
+            <div class="hero__card hero__card--detalle">
+                <p>Stock:
+                    <strong>{% if producto.esta_disponible %}Disponible{% else %}Sin stock{% endif %}</strong>
+                </p>
+                <ul>
+                    <li><span>Color:</span> {{ producto.color|default:"Por definir" }}</li>
+                    <li><span>Material:</span> {{ producto.material|default:"Por definir" }}</li>
+                    <li><span>Género:</span> {{ producto.genero|default:"Unisex" }}</li>
+                </ul>
+            </div>
+        </div>
     </header>
 
-    <nav class="contenedor">
-        <a class="boton" href="{% url 'lista-productos' %}">← Volver al catálogo</a>
-    </nav>
-
-    <main class="contenedor detalle">
-        <section class="detalle__galeria">
-            {% if imagen_principal %}
+    <main class="contenedor seccion detalle">
+        <div class="detalle__grid">
+            <section class="detalle__galeria">
+                {% if imagen_principal %}
                 <div class="detalle__principal">
                     <img src="{{ imagen_principal.imagen.url }}" alt="{{ producto.nombre }}">
                 </div>
+                {% else %}
+                <div class="detalle__placeholder">
+                    <img src="{% static 'images/placeholder.svg' %}" alt="Sin imagen disponible">
+                    <p>Estamos preparando la sesión de fotos de este modelo.</p>
+                </div>
+                {% endif %}
+
                 {% if otras_imagenes %}
                 <div class="detalle__miniaturas">
                     {% for imagen in otras_imagenes %}
-                        <img src="{{ imagen.imagen.url }}" alt="{{ producto.nombre }} {{ forloop.counter }}">
+                    <img src="{{ imagen.imagen.url }}" alt="{{ producto.nombre }} {{ forloop.counter }}">
                     {% endfor %}
                 </div>
                 {% endif %}
-            {% else %}
-                <div class="detalle__placeholder">
-                    <img src="{% static 'images/placeholder.svg' %}" alt="Sin imagen disponible">
-                    <p>No hay imágenes disponibles para este producto.</p>
+            </section>
+
+            <section class="detalle__info">
+                <div class="detalle__precio">
+                    {% if producto.precio_oferta %}
+                    <span class="precio-actual">{{ producto.precio_oferta }} &euro;</span>
+                    <span class="precio-tachado">{{ producto.precio }} &euro;</span>
+                    {% else %}
+                    <span class="precio-actual">{{ producto.precio }} &euro;</span>
+                    {% endif %}
                 </div>
-            {% endif %}
-        </section>
 
-        <section class="detalle__info">
-            <h2>Descripción</h2>
-            <p>{{ producto.descripcion|default:"Sin descripción disponible." }}</p>
+                <article class="detalle__descripcion">
+                    <h2>Descripción</h2>
+                    <p>{{ producto.descripcion|default:"Este modelo forma parte de la selección Hermanos Parera, garantizando materiales premium y confort absoluto." }}</p>
+                </article>
 
-            <div class="detalle__precio">
-                {% if producto.precio_oferta %}
-                    <span class="oferta">{{ producto.precio_oferta }} €</span>
-                    <span class="tachado">{{ producto.precio }} €</span>
-                {% else %}
-                    <span>{{ producto.precio }} €</span>
-                {% endif %}
-            </div>
+                <article class="detalle__datos">
+                    <h3>Detalles técnicos</h3>
+                    <ul>
+                        <li><span>Marca:</span> {{ producto.marca.nombre|default:"Hermanos Parera" }}</li>
+                        <li><span>Color:</span> {{ producto.color|default:"Por definir" }}</li>
+                        <li><span>Material:</span> {{ producto.material|default:"Por definir" }}</li>
+                        <li><span>Género:</span> {{ producto.genero|default:"Unisex" }}</li>
+                        <li><span>Disponibilidad:</span> {% if producto.esta_disponible %}En stock{% else %}Sin stock{% endif %}</li>
+                    </ul>
+                </article>
 
-            <ul class="detalle__datos">
-                <li><strong>Color:</strong> {{ producto.color|default:"—" }}</li>
-                <li><strong>Material:</strong> {{ producto.material|default:"—" }}</li>
-                <li><strong>Género:</strong> {{ producto.genero|default:"Unisex" }}</li>
-                <li><strong>Disponibilidad:</strong> {% if producto.esta_disponible %}En stock{% else %}Sin stock{% endif %}</li>
-            </ul>
-
-            <div class="detalle__tallas">
-                <h3>Tallas disponibles</h3>
-                {% if tallas %}
+                <article class="detalle__tallas">
+                    <h3>Tallas disponibles</h3>
+                    {% if tallas %}
                     <ul>
                         {% for talla in tallas %}
-                            <li>{{ talla.talla }} ({{ talla.stock }} uds)</li>
+                        <li>
+                            <span>{{ talla.talla }}</span>
+                            <small>{{ talla.stock }} uds</small>
+                        </li>
                         {% endfor %}
                     </ul>
-                {% else %}
-                    <p>No hay tallas asociadas.</p>
-                {% endif %}
-            </div>
-        </section>
+                    {% else %}
+                    <p>No hay tallas asociadas actualmente.</p>
+                    {% endif %}
+                </article>
+
+                <section class="detalle__carrito">
+                    <h3>Agregar al carrito</h3>
+                    <form class="carrito-add-form" action="{% url 'agregar-al-carrito' producto.id %}" method="post">
+                        {% csrf_token %}
+                        {% if tallas %}
+                        <label for="talla">Selecciona tu talla</label>
+                        <div class="select-wrapper">
+                            <select id="talla" name="talla">
+                                <option value="">Cualquier talla</option>
+                                {% for talla in tallas %}
+                                <option value="{{ talla.talla }}">{{ talla.talla }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        {% endif %}
+                        <label for="cantidad">Cantidad</label>
+                        <input id="cantidad" type="number" name="cantidad" min="1" value="1" required>
+                        <button class="boton" type="submit">Añadir al carrito</button>
+                    </form>
+                </section>
+
+                <div class="hero__cta">
+                    <a class="boton" href="{% url 'lista-productos' %}">Explorar más modelos</a>
+                    <a class="boton boton--outline" href="{% url 'home' %}#contacto">Solicitar asesoría</a>
+                </div>
+            </section>
+        </div>
     </main>
 
     <footer class="pie">
-        <p>© 2025 Zapatería Hermanos Parera</p>
+        <div class="contenedor pie__contenido">
+            <p>&copy; 2025 Zapatería Hermanos Parera. Todos los derechos reservados.</p>
+        </div>
     </footer>
 </body>
 

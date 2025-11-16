@@ -1,49 +1,203 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inicio - Zapatería</title>
+    <title>Zapatería Hermanos Parera</title>
     <link rel="stylesheet" href="{% static 'css/estilo.css' %}">
-    <style>
-        .portada {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            gap: 1rem;
-            text-align: center;
-            padding: 2rem;
-        }
-        .titulo {
-            font-size: clamp(2rem, 5vw, 3rem);
-        }
-        .subtitulo {
-            color: #555;
-        }
-        .boton {
-            padding: .8rem 1.2rem;
-            border: none;
-            border-radius: .5rem;
-            background: #0d6efd;
-            color: #fff;
-            text-decoration: none;
-            font-weight: 600;
-            transition: background .2s ease-in-out;
-            display: inline-block;
-        }
-        .boton:hover { background: #0b5ed7; }
-    </style>
-    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
-<body>
-    <main class="portada">
-        <h1 class="titulo">Zapatería Hermanos Parera</h1>
-        <p class="subtitulo">Encuentra tu par perfecto</p>
-        <a class="boton" href="{% url 'lista-productos' %}">Ver productos</a>
-    </main>
-</body>
-</html>
 
+<body class="landing">
+    <div class="landing__wrapper">
+        <header class="landing-header">
+            <nav class="landing-navbar">
+                <div class="landing-navbar__brand">
+                    <img class="nav-logo" src="{% static 'images/logoZHM.png' %}" alt="Logo Zapatería Hermanos Parera">
+                    <span>Zapatería Hermanos Parera</span>
+                </div>
+                <div class="landing-navbar__links">
+                    <a href="{% url 'home' %}#acerca">Acerca</a>
+                    <a href="{% url 'home' %}#categorias">Categorías</a>
+                    <a href="{% url 'lista-productos' %}">Catálogo</a>
+                    <a href="{% url 'home' %}#contacto">Contacto</a>
+                </div>
+                <div class="landing-navbar__actions">
+                    <a class="landing-cart-link" href="{% url 'carrito' %}" aria-label="Ir al carrito">
+                        <span>Carrito</span>
+                        <svg class="landing-cart-icon" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M3 4h2l2.7 11.3a1.5 1.5 0 0 0 1.47 1.2h7.88a1.5 1.5 0 0 0 1.46-1.09L20.6 7H6.12"
+                                  fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
+                                  stroke-linejoin="round" />
+                            <circle cx="10" cy="20" r="1.4" />
+                            <circle cx="17" cy="20" r="1.4" />
+                        </svg>
+                    </a>
+                </div>
+            </nav>
+
+            <div class="landing-hero">
+                <div class="landing-hero__text">
+                    <h1 class="landing-hero__title">Con los Parera, zapatos para cualquiera.</h1>
+                    <p class="landing-hero__description">
+                        Somos una boutique especializada en sneakers y calzado deportivo premium. Traemos lanzamientos globales a la puerta de tu casa
+                        y enviamos a todo el país.
+                    </p>
+                    <div class="hero__cta">
+                        <a class="boton" href="{% url 'lista-productos' %}">Ver catálogo</a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main>
+            <section id="accesos" class="landing-section">
+                <div class="landing-section__header">
+                    <h2 class="section-heading">Elige tu próxima acción.</h2>
+                </div>
+                <div class="landing-card-grid">
+                    <article class="landing-card">
+                        <h3>Acerca de</h3>
+                        <p>Conocenos, nuestra historia y compromiso con el calzado deportivo.</p>
+                        <a href="{% url 'home' %}#acerca">Ver más</a>
+                    </article>
+                    <article class="landing-card">
+                        <h3>Contacto</h3>
+                        <p>Contacta con nosotros.</p>
+                        <a href="{% url 'home' %}#contacto">Contactar</a>
+                    </article>
+                    <article class="landing-card">
+                        <h3>Categorías</h3>
+                        <p>Explora nuestra amplia variedad de calzado deportivo premium.</p>
+                        <a href="{% url 'home' %}#categorias">Descubrir</a>
+                    </article>
+                    <article class="landing-card">
+                        <h3>Catálogo</h3>
+                        <p>Mira la lista completa de productos disponibles y ediciones limitadas.</p>
+                        <a href="{% url 'lista-productos' %}">Ir ahora</a>
+                    </article>
+                    <article class="landing-card" id="carrito">
+                        <h3>Carrito de la compra</h3>
+                        <p>Administra tus compras y finaliza pedidos con envíos asegurados.</p>
+                        <a href="{% url 'home' %}#carrito-panel">Gestionar</a>
+                    </article>
+                    <article class="landing-card" id="identificacion">
+                        <h3>Identificación</h3>
+                        <p>Inicia sesión para ver tus pedidos.</p>
+                        <a href="{% url 'home' %}#identificacion-panel">Ingresar</a>
+                    </article>
+                    <article class="landing-card" id="registro">
+                        <h3>Registro</h3>
+                        <p>Únete al Club Parera y recibe avances sobre lanzamientos exclusivos.</p>
+                        <a href="{% url 'home' %}#registro-panel">Crear cuenta</a>
+                    </article>
+                </div>
+            </section>
+
+            <section id="acerca" class="landing-section">
+                <div class="landing-section__header">
+                    <p class="section-eyebrow">Acerca de nosotros</p>
+                    <h2 class="section-heading">Tradición familiar, espíritu deportivo.</h2>
+                    <p class="section-description">
+                        Tres generaciones de Pareras dedicados al calzado deportivo de la más alta calidad. 
+                        Desde nuestros inicios, la tienda se ha centrado en ofrecer productos cuidadosamente seleccionados y un servicio cercano, 
+                        combinando experiencia, profesionalidad y compromiso con el cliente.
+                    </p>
+                </div>
+            </section>
+
+            <section id="categorias" class="landing-section">
+                <div class="landing-section__header">
+                    <h2 class="section-heading">Categorías</h2>
+                </div>
+                <div class="landing-card-grid">
+                    <article class="landing-card">
+                        <h3>Categoria X</h3>
+                        <p>Lo que sea.</p>
+                        <a href="{% url 'lista-productos' %}?categoria=performance">Explorar</a>
+                    </article>
+                    <article class="landing-card">
+                        <h3>Categoria X</h3>
+                        <p>Lo que sea.</p>
+                        <a href="{% url 'lista-productos' %}?categoria=streetwear">Ver línea</a>
+                    </article>
+                    <article class="landing-card">
+                        <h3>Categoria X</h3>
+                        <p>Lo que sea.</p>
+                        <a href="{% url 'lista-productos' %}?categoria=premium">Descubrir</a>
+                    </article>
+                    <article class="landing-card">
+                        <h3>Categoria X</h3>
+                        <p>Lo que sea.</p>
+                        <a href="{% url 'lista-productos' %}?categoria=kids">Conocer</a>
+                    </article>
+                </div>
+            </section>
+
+            <section id="carrito-panel" class="landing-section">
+                <div class="landing-panel">
+                    <p class="section-eyebrow">Carrito de la compra</p>
+                    <h2 class="section-heading">Tu selección, siempre a mano.</h2>
+                    <a class="boton" href="{% url 'lista-productos' %}">Seguir comprando</a>
+                </div>
+            </section>
+
+            <section id="identificacion-panel" class="landing-section">
+                <div class="landing-panel">
+                    <p class="section-eyebrow">Identificación</p>
+                    <h2 class="section-heading">Bienvenido de nuevo.</h2>
+                    <form class="landing-form">
+                        <input type="email" placeholder="Correo electrónico">
+                        <input type="password" placeholder="Contraseña">
+                        <button class="boton" type="submit">Iniciar sesión</button>
+                    </form>
+                </div>
+            </section>
+
+            <section id="registro-panel" class="landing-section">
+                <div class="landing-panel">
+                    <p class="section-eyebrow">Registro</p>
+                    <h2 class="section-heading">Únete al team Parera.</h2>
+                    <form class="landing-form">
+                        <input type="text" placeholder="Nombre completo">
+                        <input type="email" placeholder="Correo electrónico">
+                        <input type="password" placeholder="Crea una contraseña">
+                        <button class="boton boton--outline" type="submit">Registrarme</button>
+                    </form>
+                </div>
+            </section>
+
+            <section id="contacto" class="landing-section">
+            <div class="landing-section__header">
+                    <h2 class="section-heading">Contacto</h2>
+                </div>
+                <div class="landing-contact-grid">
+                    <article class="landing-contact-card">
+                        <h3>Tienda física</h3>
+                        <p>De lunes a sábado, 9 a 20 h.</p>
+                        <p>Av. de la Reina Mercedes, 67, 41012 Sevilla</p>
+                    </article>
+                    <article class="landing-contact-card">
+                        <h3>Número de contacto</h3>
+                        <p>+34 954 777 777</p>
+                    </article>
+                    <article class="landing-contact-card">
+                        <h3>Email</h3>
+                        <p>zapateriahp@hermanosparera.com</p>
+                        <p>Para todo tipo de consultas.</p>
+                    </article>
+                </div>
+            </section>
+        </main>
+
+        <footer class="landing-footer">
+            <p>&copy; 2025 Zapatería Hermanos Parera. Con los Parera, zapatos para cualquiera.</p>
+        </footer>
+    </div>
+</body>
+
+</html>

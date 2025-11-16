@@ -7,75 +7,124 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Catálogo - Zapatería Hermanos Parera</title>
     <link rel="stylesheet" href="{% static 'css/estilo.css' %}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 
-<body>
-    <header class="encabezado">
-        <h1>Zapatería Hermanos Parera</h1>
-        <p>Con los parera, zapatillas para cualquiera.</p>
-    </header>
-    <nav class="contenedor" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem;">
-        <a class="boton" style="background:#e63946;" href="{% url 'home' %}">Volver al inicio</a>
-        <a class="boton" style="display:flex; align-items:center; justify-content:center; width:48px; height:48px; border-radius:50%; font-size:1.2rem; margin-left:auto;" href="{% url 'ver_carrito' %}" aria-label="Ir al carrito">
-            <span aria-hidden="true">🛒</span>
-        </a>
-    </nav>
-
-    <main class="contenedor">
-        <section class="filtros">
-            <form method="get">
-                <label for="categoria">Filtrar por categoría:</label>
-                <select name="categoria" id="categoria" onchange="this.form.submit()">
-                    <option value="">Todas</option>
-                    {% for cat in categorias %}
-                        <option value="{{ cat.id }}"
-                            {% if categoria_seleccionada and cat.id == categoria_seleccionada.id %}
-                                selected
-                            {% endif %}
-                        >
-                            {{ cat.nombre }}
-                        </option>
-                    {% endfor %}
-                </select>
-                <noscript><button type="submit">Filtrar</button></noscript>
-            </form>
-        </section>
-        {% if productos %}
-        <div class="grid">
-            {% for producto in productos %}
-            <div class="tarjeta">
-                <div class="img-box">
-                    {% if producto.imagen_destacada %}
-                    <a href="{% url 'detalle-producto' producto.id %}">
-                        <img src="{{ producto.imagen_destacada.imagen.url }}" alt="{{ producto.nombre }}">
-                    </a>
-                    {% else %}
-                    <img src="{% static 'images/placeholder.svg' %}" alt="Sin imagen">
-                    {% endif %}
-                </div>
-                <div class="contenido">
-                    <h2>{{ producto.nombre }}</h2>
-                    <p class="precio">
-                        {% if producto.precio_oferta %}
-                        <span class="oferta">{{ producto.precio_oferta }} €</span>
-                        <span class="tachado">{{ producto.precio }} €</span>
-                        {% else %}
-                        <span>{{ producto.precio }} €</span>
-                        {% endif %}
-                    </p>
-                    <p class="categoria">{{ producto.categoria.nombre }}</p>
-                    <a class="boton" href="{% url 'detalle-producto' producto.id %}">Ver detalles</a>
+<body class="catalogo">
+    <header class="hero">
+        <div class="hero__nav contenedor">
+            <div class="brand">
+                <img class="brand__logo" src="{% static 'images/logoZHM.png' %}" alt="Logo Zapatería Hermanos Parera">
+                <div>
+                    <p class="brand__eyebrow">Zapatería boutique</p>
+                    <h1>Hermanos Parera</h1>
+                    <p class="brand__tagline">Diseño contemporáneo inspirado en la tradición familiar.</p>
                 </div>
             </div>
+            <div class="hero__actions">
+                <a class="boton boton--outline" href="{% url 'home' %}">Volver al inicio</a>
+                <a class="boton" href="{% url 'carrito' %}">Ver carrito</a>
+            </div>
+        </div>
+        <div class="hero__content contenedor">
+            <div class="hero__text">
+                <p class="hero__eyebrow">Catálogo 2025</p>
+                <p class="hero__lead">
+                    Seleccionamos cada par con materiales premium y acabados impecables para acompañarte en tus mejores momentos.
+                </p>
+                <div class="hero__stats">
+                    <div>
+                        <span>{{ productos|length }}</span>
+                        <p>Modelos disponibles</p>
+                    </div>
+                    <div>
+                        <span>{{ categorias|length }}</span>
+                        <p>Categorías curadas</p>
+                    </div>
+                </div>
+            </div>
+            <div class="hero__card">
+                <p>Con los Parera, encontrás el equilibrio perfecto entre confort, elegancia y tendencia.</p>
+                <p class="hero__signature">&mdash; Hermanos Parera</p>
+            </div>
+        </div>
+    </header>
+
+    <main class="contenedor seccion">
+        <section class="filtros">
+            <form class="filtros__form" method="get">
+                <div class="filtros__control">
+                    <label for="categoria">Explorar por categoría</label>
+                    <div class="select-wrapper">
+                        <select name="categoria" id="categoria" onchange="this.form.submit()">
+                            <option value="">Todas las categorías</option>
+                            {% for cat in categorias %}
+                                <option value="{{ cat.id }}"
+                                    {% if categoria_seleccionada and cat.id == categoria_seleccionada.id %}
+                                        selected
+                                    {% endif %}
+                                >
+                                    {{ cat.nombre }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                        <svg aria-hidden="true" focusable="false" class="select-icon" viewBox="0 0 20 20">
+                            <path d="M5 8l5 5 5-5" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" />
+                        </svg>
+                    </div>
+                </div>
+                <noscript><button class="boton" type="submit">Filtrar</button></noscript>
+            </form>
+        </section>
+
+        {% if productos %}
+        <div class="grid catalogo__grid">
+            {% for producto in productos %}
+            <article class="tarjeta producto">
+                <div class="producto__imagen">
+                    {% if producto.imagen %}
+                    <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}">
+                    {% else %}
+                    <img src="{% static 'images/placeholder.svg' %}" alt="Sin imagen disponible">
+                    {% endif %}
+                    {% if producto.precio_oferta %}
+                    <span class="producto__badge">Oferta</span>
+                    {% endif %}
+                </div>
+                <div class="producto__contenido">
+                    <p class="producto__categoria">{{ producto.categoria.nombre }}</p>
+                    <h2>{{ producto.nombre }}</h2>
+                    <div class="producto__precio">
+                        {% if producto.precio_oferta %}
+                        <span class="precio-actual">{{ producto.precio_oferta }} &euro;</span>
+                        <span class="precio-tachado">{{ producto.precio }} &euro;</span>
+                        {% else %}
+                        <span class="precio-actual">{{ producto.precio }} &euro;</span>
+                        {% endif %}
+                    </div>
+                    <a class="boton boton--ghost" href="{% url 'detalle-producto' producto.id %}">Ver detalles</a>
+                </div>
+            </article>
             {% endfor %}
         </div>
         {% else %}
-        <p class="vacio">No hay productos disponibles 😢</p>
+        <section class="estado-vacio">
+            <div>
+                <p>Estamos seleccionando nuevos modelos en este momento.</p>
+                <p>Volvé pronto para descubrir las novedades de la colección Hermanos Parera.</p>
+                <a class="boton" href="{% url 'home' %}">Explorar otras secciones</a>
+            </div>
+        </section>
         {% endif %}
     </main>
 
     <footer class="pie">
-        <p>© 2025 Zapatería Hermanos Parera</p>
+        <div class="contenedor pie__contenido">
+            <p>&copy; 2025 Zapatería Hermanos Parera. Todos los derechos reservados.</p>
+            <p class="pie__detalle">Atención personalizada y envíos a todo el país.</p>
+        </div>
     </footer>
 </body>
 

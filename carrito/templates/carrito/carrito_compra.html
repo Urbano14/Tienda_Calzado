@@ -1,0 +1,197 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carrito de compras - Zapatería Hermanos Parera</title>
+    <link rel="stylesheet" href="{% static 'css/estilo.css' %}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+</head>
+
+<body class="catalogo carrito-page">
+    <header class="hero hero--detalle">
+        <div class="hero__nav contenedor">
+            <div class="brand">
+                <img class="brand__logo" src="{% static 'images/logoZHM.png' %}" alt="Logo Zapatería Hermanos Parera">
+                <div>
+                    <p class="brand__eyebrow">Resumen de compra</p>
+                    <h1>Carrito de compras</h1>
+                    <p class="brand__tagline">Gestiona tus pares y finaliza el pedido cuando quieras.</p>
+                </div>
+            </div>
+            <div class="hero__actions">
+                <a class="boton boton--outline" href="{% url 'lista-productos' %}">Seguir comprando</a>
+                <a class="boton" href="{% url 'home' %}">Volver al inicio</a>
+            </div>
+        </div>
+        <div class="hero__content contenedor">
+            <div class="hero__text">
+                <p class="hero__eyebrow">Estado actual</p>
+                <p class="hero__lead">Revisa cantidades, talles y totales antes de continuar con el pago.</p>
+                <div class="hero__stats">
+                    <div>
+                        <span data-total-articulos>{{ total_articulos }}</span>
+                        <p>Artículos en el carrito</p>
+                    </div>
+                    <div>
+                        <span data-total-carrito>{{ total_carrito|floatformat:2 }} &euro;</span>
+                        <p>Importe estimado</p>
+                    </div>
+                </div>
+            </div>
+            <div class="hero__card">
+                <p>¿Necesitas ayuda con tu pedido? Nuestro concierge está disponible vía WhatsApp o email.</p>
+                <p class="hero__signature">&mdash; Equipo Hermanos Parera</p>
+            </div>
+        </div>
+    </header>
+
+    <main class="contenedor seccion carrito-contenido">
+        {% if items %}
+        <div class="carrito-grid">
+            <section class="carrito-panel">
+                <div class="carrito-panel__header">
+                    <h2>Tu selección</h2>
+                    <p>{{ total_articulos }} artículos</p>
+                </div>
+                <div class="carrito-items">
+                    {% for item in items %}
+                    <article class="carrito-item" data-item="{{ item.id }}">
+                        <div class="carrito-item__media">
+                            {% if item.producto.imagen %}
+                            <img src="{{ item.producto.imagen.url }}" alt="{{ item.producto.nombre }}">
+                            {% else %}
+                            <img src="{% static 'images/placeholder.svg' %}" alt="{{ item.producto.nombre }}">
+                            {% endif %}
+                        </div>
+                        <div class="carrito-item__body">
+                            <h3>{{ item.producto.nombre }}</h3>
+                            <p class="carrito-item__meta">
+                                Precio unitario: {{ item.producto.precio|floatformat:2 }} &euro; ·
+                                {% if item.talla %}
+                                    Talla {{ item.talla }}
+                                {% else %}
+                                    Sin talla
+                                {% endif %}
+                            </p>
+                        </div>
+                        <div class="carrito-item__acciones">
+                            <form class="carrito-update-form" action="{% url 'actualizar-cantidad' item.id %}" method="post">
+                                {% csrf_token %}
+                                <label class="sr-only" for="cantidad-{{ item.id }}">Cantidad</label>
+                                <input class="carrito-qty-input" id="cantidad-{{ item.id }}" type="number" name="cantidad" min="1" value="{{ item.cantidad }}">
+                            </form>
+                            <form class="carrito-remove-form" action="{% url 'eliminar-del-carrito' item.id %}" method="post">
+                                {% csrf_token %}
+                                <button class="boton boton--outline" type="submit">Eliminar</button>
+                            </form>
+                        </div>
+                        <p class="carrito-item__subtotal" data-item-subtotal>
+                            Subtotal: {{ item.obtener_subtotal|floatformat:2 }} &euro;
+                        </p>
+                    </article>
+                    {% endfor %}
+                </div>
+            </section>
+
+            <aside class="carrito-summary">
+                <div class="carrito-summary__header">
+                    <h2>Resumen</h2>
+                    <p>Imp. aproximado antes del envío</p>
+                </div>
+                <div class="carrito-summary__line">
+                    <span>Artículos</span>
+                    <strong data-resumen-articulos>{{ total_articulos }}</strong>
+                </div>
+                <div class="carrito-summary__line">
+                    <span>Total</span>
+                    <strong data-resumen-total>{{ total_carrito|floatformat:2 }} &euro;</strong>
+                </div>
+                <a class="boton" href="#">Proceder al pago</a>
+                <p class="carrito-summary__note">Los envíos y tasas se calcularán en el paso siguiente.</p>
+            </aside>
+        </div>
+        {% else %}
+        <section class="carrito-empty">
+            <p>Tu carrito está vacío por ahora.</p>
+            <p>Explorá nuestro catálogo y sumá tus pares favoritos a la bolsa.</p>
+            <a class="boton" href="{% url 'lista-productos' %}">Ir al catálogo</a>
+        </section>
+        {% endif %}
+    </main>
+
+    <footer class="pie">
+        <div class="contenedor pie__contenido">
+            <p>&copy; 2025 Zapatería Hermanos Parera. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+
+    <script>
+        (function() {
+            const helper = {
+                getCsrf(form) {
+                    return form.querySelector('input[name="csrfmiddlewaretoken"]')?.value || '';
+                },
+                updateTotals(data) {
+                    const totalArt = document.querySelector('[data-total-articulos]');
+                    const totalCart = document.querySelector('[data-total-carrito]');
+                    const resumenArt = document.querySelector('[data-resumen-articulos]');
+                    const resumenTotal = document.querySelector('[data-resumen-total]');
+                    if (totalArt) totalArt.textContent = data.total_articulos ?? 0;
+                    if (resumenArt) resumenArt.textContent = data.total_articulos ?? 0;
+                    if (totalCart && data.total_carrito !== undefined) totalCart.textContent = `${data.total_carrito.toFixed(2)} €`;
+                    if (resumenTotal && data.total_carrito !== undefined) resumenTotal.textContent = `${data.total_carrito.toFixed(2)} €`;
+                },
+                updateItemRow(itemId, data) {
+                    const row = document.querySelector(`.carrito-item[data-item="${itemId}"]`);
+                    if (!row) return;
+                    if (data.removed) {
+                        row.remove();
+                        if (!document.querySelector('.carrito-item')) {
+                            window.location.reload();
+                        }
+                        return;
+                    }
+                    const subtotal = row.querySelector('[data-item-subtotal]');
+                    if (subtotal && data.item_subtotal !== undefined) {
+                        subtotal.textContent = `Subtotal: ${data.item_subtotal.toFixed(2)} €`;
+                    }
+                }
+            };
+
+            document.querySelectorAll('.carrito-qty-input').forEach((input) => {
+                input.addEventListener('change', function (e) {
+                    const value = parseInt(e.target.value, 10);
+                    if (!value || value < 1) {
+                        e.target.value = 1;
+                    }
+                    const form = e.target.closest('.carrito-update-form');
+                    if (!form) return;
+                    const formData = new FormData(form);
+                    fetch(form.action, {
+                        method: 'POST',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'X-CSRFToken': helper.getCsrf(form),
+                        },
+                        body: formData,
+                    })
+                    .then((res) => res.ok ? res.json() : Promise.reject())
+                    .then((data) => {
+                        helper.updateTotals(data);
+                        helper.updateItemRow(data.item_id, data);
+                    })
+                    .catch(() => form.submit());
+                });
+            });
+        })();
+    </script>
+</body>
+
+</html>
