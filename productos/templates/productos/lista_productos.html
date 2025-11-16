@@ -14,8 +14,11 @@
         <h1>Zapatería Hermanos Parera</h1>
         <p>Con los parera, zapatillas para cualquiera.</p>
     </header>
-    <nav class="contenedor">
-        <a class="boton" href="{% url 'home' %}">Volver al inicio</a>
+    <nav class="contenedor" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem;">
+        <a class="boton" style="background:#e63946;" href="{% url 'home' %}">Volver al inicio</a>
+        <a class="boton" style="display:flex; align-items:center; justify-content:center; width:48px; height:48px; border-radius:50%; font-size:1.2rem; margin-left:auto;" href="{% url 'ver_carrito' %}" aria-label="Ir al carrito">
+            <span aria-hidden="true">🛒</span>
+        </a>
     </nav>
 
     <main class="contenedor">
