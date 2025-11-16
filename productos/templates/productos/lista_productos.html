@@ -42,8 +42,10 @@
             {% for producto in productos %}
             <div class="tarjeta">
                 <div class="img-box">
-                    {% if producto.imagen %}
-                    <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}">
+                    {% if producto.imagen_destacada %}
+                    <a href="{% url 'detalle-producto' producto.id %}">
+                        <img src="{{ producto.imagen_destacada.imagen.url }}" alt="{{ producto.nombre }}">
+                    </a>
                     {% else %}
                     <img src="{% static 'images/placeholder.svg' %}" alt="Sin imagen">
                     {% endif %}
@@ -59,7 +61,7 @@
                         {% endif %}
                     </p>
                     <p class="categoria">{{ producto.categoria.nombre }}</p>
-                    <button class="boton">Ver detalles</button>
+                    <a class="boton" href="{% url 'detalle-producto' producto.id %}">Ver detalles</a>
                 </div>
             </div>
             {% endfor %}

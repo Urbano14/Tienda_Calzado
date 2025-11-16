@@ -53,6 +53,10 @@ class Producto(models.Model):
     def __str__(self):
         return self.nombre
 
+    @property
+    def imagen_destacada(self):
+        return self.imagenes.filter(es_principal=True).first() or self.imagenes.first()
+
 
 class ImagenProducto(models.Model):
     producto = models.ForeignKey(

@@ -1,0 +1,83 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{ producto.nombre }} - Zapatería Hermanos Parera</title>
+    <link rel="stylesheet" href="{% static 'css/estilo.css' %}">
+</head>
+
+<body>
+    <header class="encabezado">
+        <h1>{{ producto.nombre }}</h1>
+        <p>{{ producto.categoria.nombre }} · {{ producto.marca.nombre }}</p>
+    </header>
+
+    <nav class="contenedor">
+        <a class="boton" href="{% url 'lista-productos' %}">← Volver al catálogo</a>
+    </nav>
+
+    <main class="contenedor detalle">
+        <section class="detalle__galeria">
+            {% if imagen_principal %}
+                <div class="detalle__principal">
+                    <img src="{{ imagen_principal.imagen.url }}" alt="{{ producto.nombre }}">
+                </div>
+                {% if otras_imagenes %}
+                <div class="detalle__miniaturas">
+                    {% for imagen in otras_imagenes %}
+                        <img src="{{ imagen.imagen.url }}" alt="{{ producto.nombre }} {{ forloop.counter }}">
+                    {% endfor %}
+                </div>
+                {% endif %}
+            {% else %}
+                <div class="detalle__placeholder">
+                    <img src="{% static 'images/placeholder.svg' %}" alt="Sin imagen disponible">
+                    <p>No hay imágenes disponibles para este producto.</p>
+                </div>
+            {% endif %}
+        </section>
+
+        <section class="detalle__info">
+            <h2>Descripción</h2>
+            <p>{{ producto.descripcion|default:"Sin descripción disponible." }}</p>
+
+            <div class="detalle__precio">
+                {% if producto.precio_oferta %}
+                    <span class="oferta">{{ producto.precio_oferta }} €</span>
+                    <span class="tachado">{{ producto.precio }} €</span>
+                {% else %}
+                    <span>{{ producto.precio }} €</span>
+                {% endif %}
+            </div>
+
+            <ul class="detalle__datos">
+                <li><strong>Color:</strong> {{ producto.color|default:"—" }}</li>
+                <li><strong>Material:</strong> {{ producto.material|default:"—" }}</li>
+                <li><strong>Género:</strong> {{ producto.genero|default:"Unisex" }}</li>
+                <li><strong>Disponibilidad:</strong> {% if producto.esta_disponible %}En stock{% else %}Sin stock{% endif %}</li>
+            </ul>
+
+            <div class="detalle__tallas">
+                <h3>Tallas disponibles</h3>
+                {% if tallas %}
+                    <ul>
+                        {% for talla in tallas %}
+                            <li>{{ talla.talla }} ({{ talla.stock }} uds)</li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>No hay tallas asociadas.</p>
+                {% endif %}
+            </div>
+        </section>
+    </main>
+
+    <footer class="pie">
+        <p>© 2025 Zapatería Hermanos Parera</p>
+    </footer>
+</body>
+
+</html>
