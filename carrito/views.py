@@ -1,26 +1,10 @@
-from urllib import request
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpResponse
-from productos.models import Producto # Asumiendo que esta importación es correcta
+from productos.models import Producto  # Asumiendo que esta importación es correcta
 from .models import ItemCarrito
 from .utils import obtener_o_crear_carrito 
-from django.db import IntegrityError # Importamos para manejar posibles errores de BD
 
 # Create your views here.
 # carrito/views.py
-
-### Funciones de Ayuda (para manejar la cookie) ###
-
-def _establecer_cookie_carrito(response, carrito):
-    """Establece la cookie del carrito si no existe o ha cambiado."""
-    # max_age = 30 días
-    max_age = 3600 * 24 * 30 
-    
-    # Comprobamos si la cookie ya existe con el valor actual del carrito
-    if request.COOKIES.get('guest_carrito_id') != str(carrito.guest_uuid):
-        response.set_cookie('guest_carrito_id', str(carrito.guest_uuid), max_age=max_age)
-    
-    return response
 
 ### Vistas Principales ###
 
@@ -37,11 +21,7 @@ def ver_carrito(request):
         'total_carrito': carrito.obtener_total_carrito,
     }
     
-    # Renderiza la plantilla
-    response = render(request, 'carrito/ver_carrito.html', context)
-    
-    # Asegura que la cookie se establezca si es un carrito nuevo
-    return _establecer_cookie_carrito(response, carrito)
+    return render(request, 'carrito/ver_carrito.html', context)
 
 
 def agregar_producto(request, producto_id):
@@ -52,7 +32,14 @@ def agregar_producto(request, producto_id):
         return redirect('ver_carrito')
     
     producto = get_object_or_404(Producto, id=producto_id)
-    cantidad = 1 # Puedes modificar esto para obtener la cantidad de un formulario POST
+    talla = request.POST.get('talla') or None
+    try:
+        cantidad = int(request.POST.get('cantidad', 1))
+    except (TypeError, ValueError):
+        cantidad = 1
+
+    if cantidad < 1:
+        cantidad = 1
 
     carrito = obtener_o_crear_carrito(request)
 
@@ -60,6 +47,7 @@ def agregar_producto(request, producto_id):
     item, creado = ItemCarrito.objects.get_or_create(
         carrito=carrito,
         producto=producto,
+        talla=talla,
         defaults={'cantidad': cantidad}
     )
     
@@ -68,11 +56,7 @@ def agregar_producto(request, producto_id):
         item.cantidad += cantidad
         item.save()
 
-    # Redirecciona a la vista del carrito
-    response = redirect('ver_carrito')
-    
-    # Asegura que la cookie se establezca si es un carrito nuevo
-    return _establecer_cookie_carrito(response, carrito)
+    return redirect('ver_carrito')
 
 
 def eliminar_item(request, item_id):

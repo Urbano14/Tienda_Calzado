@@ -1,7 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
 from productos.models import Producto 
-import uuid
 
 # Create your models here.
 
@@ -11,10 +10,7 @@ import uuid
 # -------------------------------------------------------------------
 
 class Carrito(models.Model):
-    """
-    Representa el carrito de compras. Se asocia opcionalmente con un usuario
-    registrado o con un UUID para invitados (usado en cookies).
-    """
+    """Carrito asociado a un usuario (si se autentica) o anónimo si `cliente` es null."""
     
     # Si el usuario está logueado, se asocia aquí (ForeignKey opcional).
     usuario = models.ForeignKey(
@@ -23,18 +19,9 @@ class Carrito(models.Model):
         null=True, 
         blank=True
     )
-    
-    #Identificador único para el carrito de invitado (se usa para almacenar en una cookie).
-    guest_uuid = models.UUIDField(
-        default=uuid.uuid4, 
-        editable=False, 
-        unique=True
-    )
-    
+
     fecha_creacion = models.DateTimeField(auto_now_add=True)
     fecha_actualizacion = models.DateTimeField(auto_now=True)
-    # Indica si el carrito ya fue finalizado y convertido en pedido.
-    completado = models.BooleanField(default=False) 
 
     @property
     def obtener_total_carrito(self):
@@ -53,7 +40,7 @@ class Carrito(models.Model):
     def __str__(self):
         if self.usuario:
             return f'Carrito de {self.usuario.username}'
-        return f'Carrito de Invitado ({self.guest_uuid})'
+        return 'Carrito de Invitado'
 
 # -------------------------------------------------------------------
 # --- 2. Los Contenidos: ItemCarrito 👟 ---
@@ -73,7 +60,10 @@ class ItemCarrito(models.Model):
     
     # Cantidad de este producto en particular.
     cantidad = models.IntegerField(default=1, null=False, blank=False)
-    
+
+    # Talla elegida para esta línea. Permite diferenciar un mismo producto por talla.
+    talla = models.CharField(max_length=30, null=True, blank=True)
+
     fecha_anadido = models.DateTimeField(auto_now_add=True)
 
     @property
@@ -85,6 +75,5 @@ class ItemCarrito(models.Model):
         return f'{self.cantidad} x {self.producto.nombre}'
 
     class Meta:
-        # Restricción: Asegura que un producto solo puede tener una entrada por carrito.
-        # Si se añade el mismo, se debe incrementar 'cantidad'.
-        unique_together = ('carrito', 'producto')
+        # Un carrito puede tener varias líneas del mismo producto si la talla es distinta.
+        unique_together = ('carrito', 'producto', 'talla')
