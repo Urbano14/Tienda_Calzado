@@ -21,7 +21,7 @@ class CategoriaListView(generics.ListAPIView):
 
 
 def home(request):
-    return render(request, "productos/home.html")
+    return render(request, "pagina_inicio.html")
 
 
 def lista_productos(request):
