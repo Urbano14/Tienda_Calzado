@@ -18,7 +18,7 @@
     <header class="hero hero--detalle">
         <div class="hero__nav contenedor">
             <div class="brand">
-                <img class="brand__logo" src="{% static 'images/logoZHM.png' %}" alt="Logo Zapatería Hermanos Parera">
+                <img class="brand__logo" src="{% static 'images/logoZHPfinalSinFondo.png' %}" alt="Logo Zapatería Hermanos Parera">
                 <div>
                     <p class="brand__eyebrow">Resumen de compra</p>
                     <h1>Carrito de compras</h1>
@@ -32,8 +32,7 @@
         </div>
         <div class="hero__content contenedor">
             <div class="hero__text">
-                <p class="hero__eyebrow">Estado actual</p>
-                <p class="hero__lead">Revisa cantidades, talles y totales antes de continuar con el pago.</p>
+                <p class="hero__lead">Estado actual del carrito:</p>
                 <div class="hero__stats">
                     <div>
                         <span data-total-articulos>{{ total_articulos }}</span>
@@ -44,10 +43,6 @@
                         <p>Importe estimado</p>
                     </div>
                 </div>
-            </div>
-            <div class="hero__card">
-                <p>¿Necesitas ayuda con tu pedido? Nuestro concierge está disponible vía WhatsApp o email.</p>
-                <p class="hero__signature">&mdash; Equipo Hermanos Parera</p>
             </div>
         </div>
     </header>
@@ -120,8 +115,7 @@
         {% else %}
         <section class="carrito-empty">
             <p>Tu carrito está vacío por ahora.</p>
-            <p>Explorá nuestro catálogo y sumá tus pares favoritos a la bolsa.</p>
-            <a class="boton" href="{% url 'lista-productos' %}">Ir al catálogo</a>
+            <p>Explora nuestro catálogo y añade tus pares favoritos.</p>
         </section>
         {% endif %}
     </main>
