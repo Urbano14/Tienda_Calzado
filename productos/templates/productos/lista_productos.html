@@ -55,9 +55,9 @@
     <main class="contenedor seccion">
         <section class="filtros">
             <form class="filtros__form" method="get">
-                <div class="filtros__control">
+                <div class="filtros__control filtros__control--espaciado">
                     <label for="categoria">Explorar por categoría</label>
-                    <div class="select-wrapper">
+                    <div class="select-wrapper select-wrapper--elevado">
                         <select name="categoria" id="categoria" onchange="this.form.submit()">
                             <option value="">Todas las categorías</option>
                             {% for cat in categorias %}
@@ -84,11 +84,13 @@
             {% for producto in productos %}
             <article class="tarjeta producto">
                 <div class="producto__imagen">
-                    {% if producto.imagen %}
-                    <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}">
-                    {% else %}
-                    <img src="{% static 'images/placeholder.svg' %}" alt="Sin imagen disponible">
-                    {% endif %}
+                    {% with thumb=producto.imagen_destacada %}
+                        {% if thumb %}
+                        <img src="{{ thumb.imagen.url }}" alt="{{ producto.nombre }}">
+                        {% else %}
+                        <img src="{% static 'images/placeholder.svg' %}" alt="Sin imagen disponible">
+                        {% endif %}
+                    {% endwith %}
                     {% if producto.precio_oferta %}
                     <span class="producto__badge">Oferta</span>
                     {% endif %}

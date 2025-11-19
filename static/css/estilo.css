@@ -361,7 +361,7 @@ a {
 }
 
 .hero {
-    padding: 2.5rem 0 3rem;
+    padding: 3rem 0 4rem;
     background: linear-gradient(135deg, rgba(17, 18, 22, 0.6), rgba(17, 18, 22, 0.2));
     border-bottom: 1px solid var(--color-borde);
     position: relative;
@@ -492,7 +492,7 @@ a {
 }
 
 .hero--detalle {
-    padding-bottom: 2rem;
+    padding-bottom: 3rem;
 }
 
 .hero__content--detalle {
@@ -504,7 +504,7 @@ a {
 }
 
 .seccion {
-    margin-top: -1rem;
+    margin-top: 2.5rem;
     padding: 0 0 4rem;
     position: relative;
     z-index: 2;
@@ -523,6 +523,7 @@ a {
     flex-wrap: wrap;
     gap: 1.5rem;
     align-items: flex-end;
+    justify-content: flex-start;
 }
 
 .filtros__control label {
@@ -533,28 +534,40 @@ a {
     margin-bottom: 0.6rem;
 }
 
+.filtros__control--espaciado {
+    gap: 0.9rem;
+}
+
 .select-wrapper {
     position: relative;
+    display: inline-block;
 }
 
 .select-wrapper select {
-    width: 280px;
+    width: 320px;
     max-width: 100%;
-    padding: 0.85rem 3rem 0.85rem 1rem;
-    border-radius: 999px;
+    padding: 0.9rem 3rem 0.9rem 1.1rem;
+    border-radius: 12px;
     border: 1px solid var(--color-borde);
-    background: rgba(255, 255, 255, 0.03);
+    background: var(--color-superficie);
     color: var(--color-texto);
+    box-shadow: none;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 12px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' fill='none' stroke='%23d7263d' stroke-width='2' stroke-linecap='round' viewBox='0 0 24 24'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
 }
 
 .select-icon {
-    position: absolute;
-    right: 1rem;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 1rem;
-    height: 1rem;
-    color: var(--color-muted);
+    display: none;
+}
+
+.select-wrapper select option {
+    background: var(--color-superficie);
+    color: var(--color-texto);
 }
 
 .grid {
@@ -657,7 +670,7 @@ a {
 /* ========== Detalle producto ========== */
 
 .detalle-page .seccion {
-    margin-top: -2rem;
+    margin-top: 3rem;
 }
 
 .detalle__grid {
@@ -808,10 +821,6 @@ a {
     overflow: hidden;
     clip: rect(0, 0, 0, 0);
     border: 0;
-}
-
-.carrito-page .hero {
-    padding-bottom: 2rem;
 }
 
 .carrito-contenido {

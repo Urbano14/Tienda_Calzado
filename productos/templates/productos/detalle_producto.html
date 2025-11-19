@@ -10,9 +10,66 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .modal-alert {
+            position: fixed;
+            inset: 0;
+            display: grid;
+            place-items: center;
+            z-index: 9999;
+        }
+        .modal-alert__backdrop {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.35);
+        }
+        .modal-alert__card {
+            position: relative;
+            background: #0f172a;
+            color: #f8fafc;
+            padding: 1.5rem 1.75rem;
+            border-radius: 14px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+            max-width: 420px;
+            width: min(90vw, 420px);
+            display: grid;
+            gap: 0.75rem;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .modal-alert__text {
+            margin: 0;
+            font-weight: 600;
+        }
+        .modal-alert__close {
+            position: absolute;
+            top: 0.25rem;
+            right: 0.25rem;
+            background: transparent;
+            border: none;
+            color: #cbd5e1;
+            font-size: 1.4rem;
+            cursor: pointer;
+            padding: 0.35rem 0.6rem;
+            line-height: 1;
+        }
+        .modal-alert__close:hover {
+            color: #fff;
+        }
+    </style>
 </head>
 
 <body class="catalogo detalle-page">
+    {% if messages %}
+    <div class="modal-alert" data-alert-modal>
+        <div class="modal-alert__backdrop"></div>
+        <div class="modal-alert__card">
+            <button class="modal-alert__close" type="button" aria-label="Cerrar" data-alert-close>&times;</button>
+            {% for message in messages %}
+                <p class="modal-alert__text">{{ message }}</p>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
     <header class="hero hero--detalle">
         <div class="hero__nav contenedor">
             <div class="brand">
@@ -24,7 +81,10 @@
                     {% if producto.marca %} &mdash; {{ producto.marca.nombre }}{% endif %}
                 </p>
             </div>
-            <a class="boton boton--outline" href="{% url 'lista-productos' %}">Volver al catálogo</a>
+            <div class="hero__actions">
+                <a class="boton boton--outline" href="{% url 'lista-productos' %}">Volver al catálogo</a>
+                <a class="boton boton--ghost" href="{% url 'carrito' %}">Ver carrito</a>
+            </div>
         </div>
         <div class="hero__content contenedor hero__content--detalle">
             <div class="hero__text">
@@ -48,16 +108,6 @@
                         <p>Tallas disponibles</p>
                     </div>
                 </div>
-            </div>
-            <div class="hero__card hero__card--detalle">
-                <p>Stock:
-                    <strong>{% if producto.esta_disponible %}Disponible{% else %}Sin stock{% endif %}</strong>
-                </p>
-                <ul>
-                    <li><span>Color:</span> {{ producto.color|default:"Por definir" }}</li>
-                    <li><span>Material:</span> {{ producto.material|default:"Por definir" }}</li>
-                    <li><span>Género:</span> {{ producto.genero|default:"Unisex" }}</li>
-                </ul>
             </div>
         </div>
     </header>
@@ -107,7 +157,7 @@
                         <li><span>Color:</span> {{ producto.color|default:"Por definir" }}</li>
                         <li><span>Material:</span> {{ producto.material|default:"Por definir" }}</li>
                         <li><span>Género:</span> {{ producto.genero|default:"Unisex" }}</li>
-                        <li><span>Disponibilidad:</span> {% if producto.esta_disponible %}En stock{% else %}Sin stock{% endif %}</li>
+                        <li><span>Disponibilidad:</span> {% if producto.stock|default:0 > 0 %}En stock{% else %}Sin stock{% endif %}</li>
                     </ul>
                 </article>
 
@@ -129,23 +179,27 @@
 
                 <section class="detalle__carrito">
                     <h3>Agregar al carrito</h3>
-                    <form class="carrito-add-form" action="{% url 'agregar-al-carrito' producto.id %}" method="post">
-                        {% csrf_token %}
-                        {% if tallas %}
-                        <label for="talla">Selecciona tu talla</label>
-                        <div class="select-wrapper">
-                            <select id="talla" name="talla">
-                                <option value="">Cualquier talla</option>
-                                {% for talla in tallas %}
-                                <option value="{{ talla.talla }}">{{ talla.talla }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        {% endif %}
-                        <label for="cantidad">Cantidad</label>
-                        <input id="cantidad" type="number" name="cantidad" min="1" value="1" required>
-                        <button class="boton" type="submit">Añadir al carrito</button>
-                    </form>
+                    {% if producto.stock|default:0 > 0 %}
+                        <form class="carrito-add-form" action="{% url 'agregar-al-carrito' producto.id %}" method="post">
+                            {% csrf_token %}
+                            {% if tallas %}
+                            <label for="talla">Selecciona tu talla</label>
+                            <div class="select-wrapper">
+                                <select id="talla" name="talla">
+                                    <option value="">Cualquier talla</option>
+                                    {% for talla in tallas %}
+                                    <option value="{{ talla.talla }}">{{ talla.talla }} ({{ talla.stock }} uds)</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            {% endif %}
+                            <label for="cantidad">Cantidad</label>
+                            <input id="cantidad" type="number" name="cantidad" min="1" value="1" required>
+                            <button class="boton" type="submit">Añadir al carrito</button>
+                        </form>
+                    {% else %}
+                        <p class="alerta alerta--warning">Sin stock disponible en este momento.</p>
+                    {% endif %}
                 </section>
 
                 <div class="hero__cta">
@@ -161,6 +215,18 @@
             <p>&copy; 2025 Zapatería Hermanos Parera. Todos los derechos reservados.</p>
         </div>
     </footer>
+
+    <script>
+        (function () {
+            const modal = document.querySelector('[data-alert-modal]');
+            if (!modal) return;
+            const close = () => modal.remove();
+            const closeBtn = modal.querySelector('[data-alert-close]');
+            const backdrop = modal.querySelector('.modal-alert__backdrop');
+            if (closeBtn) closeBtn.addEventListener('click', close);
+            if (backdrop) backdrop.addEventListener('click', close);
+        })();
+    </script>
 </body>
 
 </html>

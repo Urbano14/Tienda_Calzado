@@ -1,67 +1,41 @@
 Tienda de Calzado
 
-Proyecto académico desarrollado en Django para la asignatura de Planificación y Gestión de Proyectos Informáticos.
+Proyecto académico en Django para la asignatura de Planificación y Gestión de Proyectos Informáticos.
 
+Guía rápida
+1) Clonar el proyecto
+- `git clone https://github.com/Urbano14/Tienda_Calzado.git`
+- `cd Tienda_Calzado`
 
-Guía rápida para el equipo
-1. Clonar el proyecto
-git clone https://github.com/Urbano14/Tienda_Calzado.git
-cd Tienda_Calzado
+2) Entorno y dependencias
+- `python -m venv .venv`
+- `.\.venv\Scripts\Activate.ps1`
+- `pip install -r requirements.txt`
 
-2. Crear entorno virtual e instalar dependencias
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-pip install -r requirements.txt
+3) Ejecutar el servidor local
+- `python manage.py migrate`
+- `python manage.py loaddata productos`
+- `python manage.py runserver`
 
-3. Ejecutar el servidor local
-python manage.py migrate
-python manage.py loaddata productos
-python manage.py runserver
+Rutas disponibles
+- Listado HTML de productos: http://127.0.0.1:8000/productos/
+- Detalle de producto: http://127.0.0.1:8000/productos/<id>/
+- Carrito de compra: http://127.0.0.1:8000/carrito/
+- API REST - Productos: http://127.0.0.1:8000/api/productos/
+- API REST - Categorias: http://127.0.0.1:8000/api/categorias/
+- Panel de administración: http://127.0.0.1:8000/admin/
 
+Testing
+- Ejecutar toda la suite: `python manage.py test`
+- Cubrimos: modelos y vistas/API de productos (stock, imagen destacada, precio vigente) y flujos del carrito (stock general y por talla, uso de precio_oferta, ajustes de cantidad y avisos).
+- Antes de probar manualmente, arranca el server con `python manage.py runserver` y usa las rutas de arriba.
 
-rutas_diponibles:
-- descripcion: "Vista HTML con listado de productos"
-      url: "http://127.0.0.1:8000/productos/"
-- descripcion: "API REST - Productos"
-      url: "http://127.0.0.1:8000/api/productos/"
-- descripcion: "API REST - Categorías"
-      url: "http://127.0.0.1:8000/api/categorias/"
-- descripcion: "Panel de administración"
-      url: "http://127.0.0.1:8000/admin/"
+Flujo Git sugerido
+- Crear rama: `git checkout -b feature/lo-que-sea`
+- Guardar cambios: `git add . && git commit -m "feat: descripcion breve"`
+- Subir: `git push origin feature/lo-que-sea` y abrir PR hacia main.
 
-4. Flujo de trabajo con Git
-
-Crear una nueva rama para trabajar:
-
-git checkout -b feature/iteracion-1
-
-
-Guardar los cambios:
-
-git add .
-git commit -m "feat: descripcion breve del cambio"
-
-
-Subirlos al repositorio remoto:
-
-git push origin feature/iteracion-1
-
-
-En GitHub, abrir un Pull Request hacia la rama main.
-
-5. Actualizar el proyecto
-
-Antes de empezar una nueva tarea o sesión de trabajo:
-
-git checkout main
-git pull origin main
-
-6. Normas básicas del equipo
-
-No subir .venv/, db.sqlite3 ni archivos temporales (ya están en .gitignore).
-
-Realizar commits pequeños, claros y frecuentes.
-
-Solo se fusiona a main código que funcione correctamente.
-
-Utilizar las issues de GitHub para seguir las tareas de cada iteración.
+Normas rápidas
+- No subir `.venv/`, `db.sqlite3` ni archivos temporales (ya están en `.gitignore`).
+- Commits pequeños y claros; solo se fusiona a `main` código que funcione.
+- Describir y seguir tareas en issues de GitHub.

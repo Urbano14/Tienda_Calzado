@@ -46,7 +46,7 @@ class ItemCarrito(models.Model):
 
     @property
     def obtener_subtotal(self):
-        return self.producto.precio * self.cantidad
+        return self.producto.precio_vigente * self.cantidad
 
     def __str__(self):
         return f"{self.cantidad} x {self.producto.nombre}"

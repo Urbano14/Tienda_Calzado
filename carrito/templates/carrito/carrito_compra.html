@@ -9,9 +9,7 @@
     <link rel="stylesheet" href="{% static 'css/estilo.css' %}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 
 <body class="catalogo carrito-page">
@@ -48,6 +46,13 @@
     </header>
 
     <main class="contenedor seccion carrito-contenido">
+        {% if messages %}
+        <div class="alertas">
+            {% for message in messages %}
+                <p class="alerta alerta--{{ message.tags }}">{{ message }}</p>
+            {% endfor %}
+        </div>
+        {% endif %}
         {% if items %}
         <div class="carrito-grid">
             <section class="carrito-panel">
@@ -59,16 +64,25 @@
                     {% for item in items %}
                     <article class="carrito-item" data-item="{{ item.id }}">
                         <div class="carrito-item__media">
-                            {% if item.producto.imagen %}
-                            <img src="{{ item.producto.imagen.url }}" alt="{{ item.producto.nombre }}">
-                            {% else %}
-                            <img src="{% static 'images/placeholder.svg' %}" alt="{{ item.producto.nombre }}">
-                            {% endif %}
+                            {% with thumb=item.producto.imagen_destacada %}
+                                {% if thumb %}
+                                <img src="{{ thumb.imagen.url }}" alt="{{ item.producto.nombre }}">
+                                {% else %}
+                                <img src="{% static 'images/placeholder.svg' %}" alt="{{ item.producto.nombre }}">
+                                {% endif %}
+                            {% endwith %}
                         </div>
                         <div class="carrito-item__body">
                             <h3>{{ item.producto.nombre }}</h3>
                             <p class="carrito-item__meta">
-                                Precio unitario: {{ item.producto.precio|floatformat:2 }} &euro; ·
+                                Precio unitario:
+                                {% if item.producto.precio_oferta %}
+                                    <span class="precio-actual">{{ item.producto.precio_oferta|floatformat:2 }} &euro;</span>
+                                    <span class="precio-tachado">{{ item.producto.precio|floatformat:2 }} &euro;</span>
+                                {% else %}
+                                    <span class="precio-actual">{{ item.producto.precio|floatformat:2 }} &euro;</span>
+                                {% endif %}
+                                ·
                                 {% if item.talla %}
                                     Talla {{ item.talla }}
                                 {% else %}
@@ -155,6 +169,9 @@
                     const subtotal = row.querySelector('[data-item-subtotal]');
                     if (subtotal && data.item_subtotal !== undefined) {
                         subtotal.textContent = `Subtotal: ${data.item_subtotal.toFixed(2)} €`;
+                    }
+                    if (data.warning) {
+                        alert(data.warning);
                     }
                 }
             };

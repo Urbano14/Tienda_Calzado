@@ -1,5 +1,6 @@
 import shutil
 import tempfile
+from decimal import Decimal
 
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase, override_settings
@@ -186,3 +187,21 @@ class ProductoModelTestCase(MediaRootMixin, TestCase):
         )
 
         self.assertEqual(self.producto.imagen_destacada, imagen)
+
+    def test_disponibilidad_sigue_el_stock(self):
+        self.producto.stock = 0
+        self.producto.save()
+        self.assertFalse(self.producto.esta_disponible)
+
+        self.producto.stock = 3
+        self.producto.save()
+        self.assertTrue(self.producto.esta_disponible)
+
+    def test_precio_vigente_prefiere_oferta(self):
+        self.producto.precio_oferta = Decimal("90.00")
+        self.producto.save()
+        self.assertEqual(self.producto.precio_vigente, Decimal("90.00"))
+
+        self.producto.precio_oferta = None
+        self.producto.save()
+        self.assertEqual(self.producto.precio_vigente, Decimal("110.00"))

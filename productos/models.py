@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django.db import models
 
 
@@ -52,6 +54,18 @@ class Producto(models.Model):
 
     def __str__(self):
         return self.nombre
+
+    def save(self, *args, **kwargs):
+        # La disponibilidad se deriva del stock: si no hay unidades, se marca como no disponible.
+        self.esta_disponible = self.stock > 0
+        super().save(*args, **kwargs)
+
+    @property
+    def precio_vigente(self):
+        """Devuelve el precio a usar (oferta si existe, si no el base)."""
+        if self.precio_oferta is not None:
+            return Decimal(self.precio_oferta)
+        return Decimal(self.precio)
 
     @property
     def imagen_destacada(self):
