@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
@@ -19,6 +20,31 @@ def _responder_totales(carrito, extra=None):
     if extra:
         data.update(extra)
     return JsonResponse(data)
+
+
+def _stock_disponible(producto, talla=None):
+    """Devuelve el stock disponible: primero el de la talla (si existe), si no el general."""
+    if talla:
+        talla_obj = producto.tallas.filter(talla=talla).first()
+        if talla_obj:
+            return talla_obj.stock
+    return producto.stock
+
+
+def _ajustar_stock(producto, talla, delta):
+    """
+    Ajusta stock cuando el carrito consume o devuelve unidades.
+    delta negativo reduce stock, delta positivo lo devuelve.
+    """
+    if talla:
+        talla_obj = producto.tallas.filter(talla=talla).first()
+        if talla_obj:
+            talla_obj.stock = max(talla_obj.stock + delta, 0)
+            talla_obj.save()
+        return
+
+    producto.stock = max(producto.stock + delta, 0)
+    producto.save()
 
 
 def ver_carrito(request):
@@ -48,16 +74,51 @@ def agregar_al_carrito(request, producto_id):
         cantidad = 1
 
     carrito = obtener_o_crear_carrito(request)
-    item, creado = ItemCarrito.objects.get_or_create(
+    item = ItemCarrito.objects.filter(
         carrito=carrito,
         producto=producto,
         talla=talla,
-        defaults={"cantidad": cantidad},
-    )
+    ).first()
 
-    if not creado:
-        item.cantidad += cantidad
+    stock_disponible = _stock_disponible(producto, talla)
+    cantidad_actual = item.cantidad if item else 0
+    nueva_cantidad = cantidad_actual + cantidad
+
+    if stock_disponible <= 0:
+        mensaje = "No hay más stock de este producto."
+        if _es_peticion_ajax(request):
+            return JsonResponse({"error": mensaje, "stock_disponible": 0}, status=400)
+        messages.error(request, mensaje)
+        return redirect("detalle-producto", pk=producto.id)
+
+    if nueva_cantidad > stock_disponible:
+        mensaje = "No hay más stock de este producto."
+        if _es_peticion_ajax(request):
+            return _responder_totales(
+                carrito,
+                {
+                    "warning": mensaje,
+                    "stock_disponible": stock_disponible,
+                },
+            )
+        messages.error(request, mensaje)
+        return redirect("detalle-producto", pk=producto.id)
+
+    delta = nueva_cantidad - cantidad_actual
+
+    if item:
+        item.cantidad = nueva_cantidad
         item.save()
+    else:
+        item = ItemCarrito.objects.create(
+            carrito=carrito,
+            producto=producto,
+            talla=talla,
+            cantidad=nueva_cantidad,
+        )
+
+    if delta:
+        _ajustar_stock(producto, talla, -delta)
 
     if _es_peticion_ajax(request):
         return _responder_totales(
@@ -73,6 +134,7 @@ def eliminar_del_carrito(request, item_id):
     """Elimina una linea del carrito."""
     carrito = obtener_o_crear_carrito(request)
     item = get_object_or_404(ItemCarrito, id=item_id, carrito=carrito)
+    _ajustar_stock(item.producto, item.talla, item.cantidad)
     item.delete()
 
     if _es_peticion_ajax(request):
@@ -93,6 +155,20 @@ def actualizar_cantidad(request, item_id):
         return redirect("carrito")
 
     if nueva_cantidad > 0:
+        stock_disponible = _stock_disponible(item.producto, item.talla)
+        cantidad_actual = item.cantidad
+        delta = nueva_cantidad - cantidad_actual
+        mensaje = None
+
+        if delta > 0 and delta > stock_disponible:
+            delta = stock_disponible
+            nueva_cantidad = cantidad_actual + delta
+            mensaje = f"Cantidad ajustada a {nueva_cantidad} por disponibilidad de stock."
+            messages.warning(request, mensaje)
+
+        if delta != 0:
+            _ajustar_stock(item.producto, item.talla, -delta)
+
         item.cantidad = nueva_cantidad
         item.save()
         payload = {
@@ -100,6 +176,8 @@ def actualizar_cantidad(request, item_id):
             "cantidad": item.cantidad,
             "item_subtotal": float(item.obtener_subtotal),
         }
+        if mensaje:
+            payload["warning"] = mensaje
     else:
         item.delete()
         payload = {"removed": True, "item_id": item_id}
