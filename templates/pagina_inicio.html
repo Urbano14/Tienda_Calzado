@@ -27,6 +27,10 @@
                     <a href="{% url 'home' %}#contacto">Contacto</a>
                 </div>
                 <div class="landing-navbar__actions">
+                    <div class="landing-user" id="landing-user" aria-live="polite">
+                        <span id="landing-user-label">Sesión no iniciada</span>
+                        <button type="button" class="boton boton--ghost landing-user__logout" id="logout-btn" hidden>Cerrar sesión</button>
+                    </div>
                     <a class="landing-cart-link" href="{% url 'carrito' %}" aria-label="Ir al carrito">
                         <span>Carrito</span>
                         <svg class="landing-cart-icon" viewBox="0 0 24 24" aria-hidden="true">
@@ -150,10 +154,11 @@
                 <div class="landing-panel">
                     <p class="section-eyebrow">Identificación</p>
                     <h2 class="section-heading">Bienvenido de nuevo.</h2>
-                    <form class="landing-form">
-                        <input type="email" placeholder="Correo electrónico">
-                        <input type="password" placeholder="Contraseña">
+                    <form class="landing-form" id="login-form">
+                        <input type="email" name="email" placeholder="Correo electrónico" required>
+                        <input type="password" name="password" placeholder="Contraseña" required>
                         <button class="boton" type="submit">Iniciar sesión</button>
+                        <div class="landing-form__feedback" id="login-msg"></div>
                     </form>
                 </div>
             </section>
@@ -162,11 +167,12 @@
                 <div class="landing-panel">
                     <p class="section-eyebrow">Registro</p>
                     <h2 class="section-heading">Únete al team Parera.</h2>
-                    <form class="landing-form">
-                        <input type="text" placeholder="Nombre completo">
-                        <input type="email" placeholder="Correo electrónico">
-                        <input type="password" placeholder="Crea una contraseña">
+                    <form class="landing-form" id="registro-form">
+                        <input type="text" name="nombre" placeholder="Nombre completo">
+                        <input type="email" name="email" placeholder="Correo electrónico" required>
+                        <input type="password" name="password" placeholder="Crea una contraseña" required>
                         <button class="boton boton--outline" type="submit">Registrarme</button>
+                        <div class="landing-form__feedback" id="registro-msg"></div>
                     </form>
                 </div>
             </section>
@@ -198,6 +204,96 @@
             <p>&copy; 2025 Zapatería Hermanos Parera. Con los Parera, zapatos para cualquiera.</p>
         </footer>
     </div>
+    <script>
+        (function () {
+            const apiBase = "/api/";
+            const userLabel = document.getElementById("landing-user-label");
+            const logoutBtn = document.getElementById("logout-btn");
+
+            const setMessage = (el, text, ok = false) => {
+                if (!el) return;
+                el.textContent = text || "";
+                el.style.color = ok ? "green" : "red";
+            };
+
+            const updateUserUI = () => {
+                const token = localStorage.getItem("token");
+                const email = localStorage.getItem("email");
+                if (token) {
+                    userLabel.textContent = email ? `Sesión: ${email}` : "Sesión iniciada";
+                    logoutBtn.hidden = false;
+                } else {
+                    userLabel.textContent = "Sesión no iniciada";
+                    logoutBtn.hidden = true;
+                }
+            };
+
+            const handleAuthSubmit = (formId, msgId, endpoint) => {
+                const form = document.getElementById(formId);
+                const msg = document.getElementById(msgId);
+                if (!form) return;
+
+                form.addEventListener("submit", async (e) => {
+                    e.preventDefault();
+                    setMessage(msg, "Procesando...");
+                    const formData = new FormData(form);
+                    const email = (formData.get("email") || "").trim();
+                    const password = formData.get("password") || "";
+
+                    if (!email || !password) {
+                        setMessage(msg, "Completa email y contraseña.");
+                        return;
+                    }
+
+                    try {
+                        const response = await fetch(apiBase + endpoint, {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                            },
+                            body: JSON.stringify({ email, password }),
+                        });
+                        const data = await response.json();
+                        if (!response.ok) {
+                            const errorMsg =
+                                data?.email?.[0] ||
+                                data?.non_field_errors?.[0] ||
+                                data?.detail ||
+                                "No se pudo completar la operación.";
+                            setMessage(msg, errorMsg);
+                            return;
+                        }
+                        if (data.token) {
+                            localStorage.setItem("token", data.token);
+                            localStorage.setItem("email", data.email || email);
+                        }
+                        setMessage(
+                            msg,
+                            endpoint === "registro/"
+                                ? "Registro completado. Token guardado."
+                                : "Inicio de sesión correcto. Token guardado.",
+                            true
+                        );
+                        updateUserUI();
+                    } catch (err) {
+                        setMessage(msg, "Error de conexión. Inténtalo de nuevo.");
+                    }
+                });
+            };
+
+            if (logoutBtn) {
+                logoutBtn.addEventListener("click", () => {
+                    localStorage.removeItem("token");
+                    localStorage.removeItem("email");
+                    updateUserUI();
+                });
+            }
+
+            handleAuthSubmit("registro-form", "registro-msg", "registro/");
+            handleAuthSubmit("login-form", "login-msg", "login/");
+            updateUserUI();
+        })();
+    </script>
 </body>
 
 </html>

@@ -21,6 +21,7 @@ from django.urls import path, include
 
 # Aqui se anyaden los path de las urls de cada app en nombreapp/templates/nombreapp
 urlpatterns = [
+    path('api/', include('clientes.urls')),
     path('carrito/', include('carrito.urls')),
     path('', include("productos.urls")),
     path('admin/', admin.site.urls)
