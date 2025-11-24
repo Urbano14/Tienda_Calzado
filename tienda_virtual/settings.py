@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'productos',
     'carrito',
+    'pedidos'
 ]
 
 MIDDLEWARE = [
@@ -147,3 +148,6 @@ else:
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+PEDIDOS_IVA = os.getenv('PEDIDOS_IVA', '0.21')
+PEDIDOS_COSTE_ENTREGA = os.getenv('PEDIDOS_COSTE_ENTREGA', '5.00')
+
