@@ -73,8 +73,36 @@ def _build_querystring(base_params, path, **updates):
 
 
 class ProductoListView(generics.ListAPIView):
-    queryset = Producto.objects.select_related("categoria", "marca")
+    queryset = Producto.objects.select_related(
+        "categoria",
+        "categoria__seccion",
+        "categoria__seccion__departamento",
+        "marca",
+    )
     serializer_class = ProductoSerializer
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+
+        filtros = {
+            "departamento": self.request.query_params.get("departamento"),
+            "seccion": self.request.query_params.get("seccion"),
+            "categoria": self.request.query_params.get("categoria"),
+            "fabricante": self.request.query_params.get("fabricante")
+            or self.request.query_params.get("marca"),
+        }
+
+        queryset, _ = apply_catalog_filters(queryset, filtros)
+
+        termino = (
+            self.request.query_params.get("nombre")
+            or self.request.query_params.get("titulo")
+            or self.request.query_params.get("q")
+        )
+        if termino:
+            queryset = queryset.filter(nombre__icontains=termino.strip())
+
+        return queryset
 
 
 class ProductoDetailView(generics.RetrieveAPIView):

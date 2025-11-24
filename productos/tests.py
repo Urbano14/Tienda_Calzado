@@ -39,12 +39,16 @@ class MediaRootMixin:
 class ProductoAPITestCase(MediaRootMixin, APITestCase):
     def setUp(self):
         self.marca = Marca.objects.create(nombre="Test Brand")
+        self.otro_marca = Marca.objects.create(nombre="City Brand")
         self.departamento = Departamento.objects.create(nombre="Colección Test")
+        self.otra_departamento = Departamento.objects.create(
+            nombre="Colección Alterna"
+        )
         self.seccion = Seccion.objects.create(
             nombre="Rendimiento", departamento=self.departamento
         )
         self.otra_seccion = Seccion.objects.create(
-            nombre="Urbano", departamento=self.departamento
+            nombre="Urbano", departamento=self.otra_departamento
         )
         self.categoria = Categoria.objects.create(nombre="Running", seccion=self.seccion)
         self.otra_categoria = Categoria.objects.create(
@@ -66,7 +70,7 @@ class ProductoAPITestCase(MediaRootMixin, APITestCase):
             nombre="Zapatilla Urbana",
             descripcion="Para uso diario",
             precio="80.00",
-            marca=self.marca,
+            marca=self.otro_marca,
             categoria=self.otra_categoria,
             stock=3,
         )
@@ -112,14 +116,50 @@ class ProductoAPITestCase(MediaRootMixin, APITestCase):
         nombres = {categoria["nombre"] for categoria in response.data}
         self.assertSetEqual(nombres, {"Running", "Basket"})
 
+    def test_product_list_endpoint_filters_by_nombre(self):
+        url = reverse("api-productos")
+        response = self.client.get(url, {"nombre": "Pro"})
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]["id"], self.producto.id)
+
+    def test_product_list_endpoint_filters_by_departamento(self):
+        url = reverse("api-productos")
+        response = self.client.get(
+            url, {"departamento": self.departamento.slug}
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        ids = {item["id"] for item in response.data}
+        self.assertIn(self.producto.id, ids)
+        self.assertNotIn(self.otro_producto.id, ids)
+
+    def test_product_list_endpoint_filters_by_seccion(self):
+        url = reverse("api-productos")
+        response = self.client.get(url, {"seccion": self.seccion.slug})
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        ids = {item["id"] for item in response.data}
+        self.assertEqual(ids, {self.producto.id})
+
+    def test_product_list_endpoint_filters_by_fabricante(self):
+        url = reverse("api-productos")
+        response = self.client.get(url, {"fabricante": self.marca.slug})
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        ids = {item["id"] for item in response.data}
+        self.assertEqual(ids, {self.producto.id})
+
 
 class ProductoViewsTestCase(MediaRootMixin, TestCase):
     def setUp(self):
         self.marca = Marca.objects.create(nombre="Marca Vista")
-        self.departamento = Departamento.objects.create(nombre="Colección Vista")
+        self.departamento = Departamento.objects.create(nombre="Colección Vista Test")
+        self.otra_departamento = Departamento.objects.create(nombre="Colección Urbana Test")
         self.seccion = Seccion.objects.create(nombre="Trail", departamento=self.departamento)
         self.otra_seccion = Seccion.objects.create(
-            nombre="Lifestyle", departamento=self.departamento
+            nombre="Lifestyle", departamento=self.otra_departamento
         )
         self.categoria = Categoria.objects.create(nombre="Trail", seccion=self.seccion)
         self.otra_categoria = Categoria.objects.create(
@@ -168,7 +208,7 @@ class ProductoViewsTestCase(MediaRootMixin, TestCase):
 
         response_departamento = self.client.get(url, {"departamento": self.departamento.slug})
         self.assertContains(response_departamento, "Trail Runner")
-        self.assertContains(response_departamento, "City Walk")
+        self.assertNotContains(response_departamento, "City Walk")
 
         response_marca = self.client.get(url, {"fabricante": self.marca.slug})
         self.assertContains(response_marca, "Trail Runner")
