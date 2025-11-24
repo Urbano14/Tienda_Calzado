@@ -1,0 +1,81 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <title>Detalle de tu pedido</title>
+    <link rel="stylesheet" href="{% static 'css/estilo.css' %}">
+</head>
+<body>
+    <header class="site-header seguimiento-header">
+        <div class="contenedor-header">
+            <a href="/" class="logo-texto">ZHP Store</a>
+            <nav class="nav-simple">
+                <a href="/">Inicio</a>
+                <a href="/productos/">Cat&aacute;logo</a>
+                <a href="/carrito/">Carrito</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="seguimiento-main">
+        <section class="pedido-card">
+            <h1>Detalles de tu pedido</h1>
+
+            <div class="pedido-meta">
+                <p><span class="label">N&uacute;mero de pedido:</span> {{ pedido.numero_pedido }}</p>
+                <p><span class="label">Fecha de creaci&oacute;n:</span> {{ pedido.fecha_creacion|date:"d/m/Y H:i" }}</p>
+                <p><span class="label">Estado:</span> {{ pedido.estado }}</p>
+            </div>
+
+            <div class="pedido-resumen">
+                <h2>Resumen</h2>
+                <p><span class="label">Subtotal:</span> {{ pedido.subtotal }} &euro;</p>
+                <p><span class="label">Impuestos:</span> {{ pedido.impuestos }} &euro;</p>
+                <p><span class="label">Coste de entrega:</span> {{ pedido.coste_entrega }} &euro;</p>
+                <p><span class="label">Descuento:</span> {{ pedido.descuento }} &euro;</p>
+                <p class="pedido-total"><span class="label">Total:</span> {{ pedido.total }} &euro;</p>
+            </div>
+
+            <div class="pedido-items-wrapper">
+                <h2>Art&iacute;culos del pedido</h2>
+                {% if pedido.items.all %}
+                    <table class="pedido-items">
+                        <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th>Talla</th>
+                            <th>Cantidad</th>
+                            <th>Precio unitario</th>
+                            <th>Total</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for item in pedido.items.all %}
+                            <tr>
+                                <td>{{ item.producto.nombre }}</td>
+                                <td>{{ item.talla|default:"-" }}</td>
+                                <td>{{ item.cantidad }}</td>
+                                <td>{{ item.precio_unitario }} &euro;</td>
+                                <td>{{ item.total }} &euro;</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <p class="sin-items">Este pedido no tiene art&iacute;culos.</p>
+                {% endif %}
+            </div>
+
+            <div class="pedido-acciones">
+                <a href="/" class="btn btn-primario">Volver a la tienda</a>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer seguimiento-footer">
+        <p>&copy; {{ pedido.fecha_creacion|date:"Y" }} ZHP Store</p>
+    </footer>
+</body>
+</html>

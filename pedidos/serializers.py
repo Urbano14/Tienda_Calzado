@@ -92,3 +92,21 @@ class PedidoCreateSerializer(serializers.Serializer):
         if request and not request.user.is_authenticated and not attrs.get("datos_cliente"):
             raise serializers.ValidationError({"datos_cliente": _("Los invitados deben indicar sus datos.")})
         return attrs
+
+class PedidoPublicSerializer(serializers.ModelSerializer):
+    items = ItemPedidoSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Pedido
+
+        fields = (
+            "numero_pedido",
+            "fecha_creacion",
+            "estado",
+            "subtotal",
+            "impuestos",
+            "coste_entrega",
+            "descuento",
+            "total",
+            "items",
+        )

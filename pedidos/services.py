@@ -106,9 +106,9 @@ def crear_pedido_desde_carrito(usuario: Optional[User], datos_compra: Dict) -> P
         producto_map = {producto.id: producto for producto in productos}
 
         talla_keys = {
-            (item.producto_id, item.talla)
+            (item.producto_id, (item.talla or '').strip())
             for item in items_carrito
-            if item.talla
+            if (item.talla or '').strip()
         }
         talla_map = _obtener_talla_map(talla_keys)
 
@@ -117,6 +117,7 @@ def crear_pedido_desde_carrito(usuario: Optional[User], datos_compra: Dict) -> P
         items_precio = []
 
         for item in items_carrito:
+            talla = (item.talla or '').strip()
             producto = producto_map.get(item.producto_id)
             if not producto:
                 raise ValidationError(f"Producto {item.producto_id} no disponible.")
@@ -125,14 +126,14 @@ def crear_pedido_desde_carrito(usuario: Optional[User], datos_compra: Dict) -> P
             if cantidad <= 0:
                 raise ValidationError('La cantidad de un item no es valida.')
 
-            talla_key = (item.producto_id, item.talla) if item.talla else None
+            talla_key = (item.producto_id, talla) if talla else None
             if talla_key and talla_key in talla_map:
                 disponible = talla_map[talla_key].stock
             else:
                 disponible = producto.stock
 
             if cantidad > disponible:
-                etiqueta = f" (talla {item.talla})" if item.talla else ''
+                etiqueta = f" (talla {talla})" if talla else ''
                 raise ValidationError(
                     f"Stock insuficiente para {producto.nombre}{etiqueta}. Disponible: {disponible}"
                 )
@@ -144,7 +145,7 @@ def crear_pedido_desde_carrito(usuario: Optional[User], datos_compra: Dict) -> P
             items_precio.append(
                 {
                     'producto': producto,
-                    'talla': item.talla or '',
+                    'talla': talla,
                     'cantidad': cantidad,
                     'precio_unitario': precio_unitario,
                     'total': total_linea,
