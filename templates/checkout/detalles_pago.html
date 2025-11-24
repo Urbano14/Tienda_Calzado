@@ -1,0 +1,74 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Checkout – Detalles de pago</title>
+    <link rel="stylesheet" href="{% static 'css/estilo.css' %}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body class="catalogo checkout-page">
+<header class="hero hero--detalle">
+    <div class="hero__nav contenedor">
+        <div class="brand">
+            <img class="brand__logo" src="{% static 'images/logoZHPfinalSinFondo.png' %}" alt="Logo Zapatería Hermanos Parera">
+            <div>
+                <p class="brand__eyebrow">Checkout · Paso 2 de 3</p>
+                <h1>Detalles de Pago</h1>
+                <p class="brand__tagline">Selecciona el método con el que deseas finalizar tu compra.</p>
+            </div>
+        </div>
+        <div class="hero__actions">
+            <a class="boton boton--outline" href="{% url 'pedidos:checkout_entrega' %}">Volver a entrega</a>
+            <a class="boton" href="{% url 'carrito' %}">Ver carrito</a>
+        </div>
+    </div>
+</header>
+
+<main class="contenedor seccion checkout-contenido">
+    <section class="checkout-panel">
+        <h2 class="checkout-panel__title">Método de pago</h2>
+        <form method="post" class="formulario formulario--checkout">
+            {% csrf_token %}
+            {% if form.non_field_errors %}
+                <div class="alerta alerta--error">{{ form.non_field_errors }}</div>
+            {% endif %}
+            <div class="formulario__grid formulario__grid--full">
+                {% for field in form %}
+                    <div class="formulario__campo">
+                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.help_text %}
+                            <small>{{ field.help_text }}</small>
+                        {% endif %}
+                        {% for error in field.errors %}
+                            <p class="formulario__error">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+            </div>
+            <button class="boton" type="submit">Confirmar Compra</button>
+        </form>
+    </section>
+    <aside class="checkout-summary">
+        <h3>Resumen de pasos</h3>
+        <ul class="checkout-steps">
+            <li class="checkout-steps__item checkout-steps__item--done">Entrega</li>
+            <li class="checkout-steps__item checkout-steps__item--active">Pago</li>
+            <li class="checkout-steps__item">Confirmación</li>
+        </ul>
+        <p>Los datos se guardan en tu sesión para completar el pedido en el siguiente paso.</p>
+    </aside>
+</main>
+
+<footer class="pie">
+    <div class="contenedor pie__contenido">
+        <p>&copy; 2025 Zapatería Hermanos Parera. Todos los derechos reservados.</p>
+    </div>
+</footer>
+</body>
+</html>
