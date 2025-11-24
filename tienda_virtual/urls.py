@@ -23,8 +23,9 @@ from django.urls import path, include
 urlpatterns = [
     path('api/', include('clientes.urls')),
     path('carrito/', include('carrito.urls')),
-    path('', include("productos.urls")),
-    path('admin/', admin.site.urls)
+    path('', include('productos.urls')),
+    path('', include('pedidos.urls')),
+    path('admin/', admin.site.urls),
 ]
 
 if settings.DEBUG:
