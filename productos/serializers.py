@@ -1,8 +1,32 @@
 from rest_framework import serializers
-from .models import Producto, Categoria, Marca, ImagenProducto, TallaProducto
+from .models import (
+    Categoria,
+    Departamento,
+    ImagenProducto,
+    Marca,
+    Producto,
+    Seccion,
+    TallaProducto,
+)
+
+
+class DepartamentoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Departamento
+        fields = "__all__"
+
+
+class SeccionSerializer(serializers.ModelSerializer):
+    departamento = DepartamentoSerializer(read_only=True)
+
+    class Meta:
+        model = Seccion
+        fields = "__all__"
 
 
 class CategoriaSerializer(serializers.ModelSerializer):
+    seccion = SeccionSerializer(read_only=True)
+
     class Meta:
         model = Categoria
         fields = "__all__"

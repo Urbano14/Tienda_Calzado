@@ -8,7 +8,15 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from .models import Categoria, Marca, Producto, ImagenProducto, TallaProducto
+from .models import (
+    Categoria,
+    Departamento,
+    ImagenProducto,
+    Marca,
+    Producto,
+    Seccion,
+    TallaProducto,
+)
 
 
 class MediaRootMixin:
@@ -31,8 +39,17 @@ class MediaRootMixin:
 class ProductoAPITestCase(MediaRootMixin, APITestCase):
     def setUp(self):
         self.marca = Marca.objects.create(nombre="Test Brand")
-        self.categoria = Categoria.objects.create(nombre="Running")
-        self.otra_categoria = Categoria.objects.create(nombre="Basket")
+        self.departamento = Departamento.objects.create(nombre="Colección Test")
+        self.seccion = Seccion.objects.create(
+            nombre="Rendimiento", departamento=self.departamento
+        )
+        self.otra_seccion = Seccion.objects.create(
+            nombre="Urbano", departamento=self.departamento
+        )
+        self.categoria = Categoria.objects.create(nombre="Running", seccion=self.seccion)
+        self.otra_categoria = Categoria.objects.create(
+            nombre="Basket", seccion=self.otra_seccion
+        )
 
         self.producto = Producto.objects.create(
             nombre="Zapatilla Pro",
@@ -99,8 +116,15 @@ class ProductoAPITestCase(MediaRootMixin, APITestCase):
 class ProductoViewsTestCase(MediaRootMixin, TestCase):
     def setUp(self):
         self.marca = Marca.objects.create(nombre="Marca Vista")
-        self.categoria = Categoria.objects.create(nombre="Trail")
-        self.otra_categoria = Categoria.objects.create(nombre="Lifestyle")
+        self.departamento = Departamento.objects.create(nombre="Colección Vista")
+        self.seccion = Seccion.objects.create(nombre="Trail", departamento=self.departamento)
+        self.otra_seccion = Seccion.objects.create(
+            nombre="Lifestyle", departamento=self.departamento
+        )
+        self.categoria = Categoria.objects.create(nombre="Trail", seccion=self.seccion)
+        self.otra_categoria = Categoria.objects.create(
+            nombre="Lifestyle", seccion=self.otra_seccion
+        )
 
         self.producto = Producto.objects.create(
             nombre="Trail Runner",
@@ -135,9 +159,20 @@ class ProductoViewsTestCase(MediaRootMixin, TestCase):
         self.assertContains(response, "Trail Runner")
         self.assertContains(response, "City Walk")
 
-        response_filtrado = self.client.get(url, {"categoria": self.categoria.id})
+        response_filtrado = self.client.get(url, {"categoria": self.categoria.slug})
         self.assertContains(response_filtrado, "Trail Runner")
         self.assertNotContains(response_filtrado, "City Walk")
+
+    def test_lista_productos_view_accepts_departamento_and_marca_filters(self):
+        url = reverse("lista-productos")
+
+        response_departamento = self.client.get(url, {"departamento": self.departamento.slug})
+        self.assertContains(response_departamento, "Trail Runner")
+        self.assertContains(response_departamento, "City Walk")
+
+        response_marca = self.client.get(url, {"fabricante": self.marca.slug})
+        self.assertContains(response_marca, "Trail Runner")
+        self.assertContains(response_marca, "City Walk")
 
     def test_detalle_producto_view_renders_information(self):
         url = reverse("detalle-producto", args=[self.producto.id])
@@ -152,7 +187,9 @@ class ProductoViewsTestCase(MediaRootMixin, TestCase):
 class ProductoModelTestCase(MediaRootMixin, TestCase):
     def setUp(self):
         marca = Marca.objects.create(nombre="Marca Modelo")
-        categoria = Categoria.objects.create(nombre="Performance")
+        departamento = Departamento.objects.create(nombre="Colección Modelo")
+        seccion = Seccion.objects.create(nombre="Performance", departamento=departamento)
+        categoria = Categoria.objects.create(nombre="Performance", seccion=seccion)
         self.producto = Producto.objects.create(
             nombre="Speedster",
             descripcion="Modelo ligero",

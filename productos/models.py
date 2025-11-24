@@ -2,10 +2,59 @@ from decimal import Decimal
 
 from django.db import models
 
+from .utils import build_unique_slug
+
+
+class Departamento(models.Model):
+    nombre = models.CharField(max_length=120, unique=True)
+    descripcion = models.TextField(blank=True, null=True)
+    slug = models.SlugField(max_length=160, unique=True, blank=True)
+    orden = models.PositiveSmallIntegerField(default=0)
+
+    class Meta:
+        ordering = ("orden", "nombre")
+        verbose_name = "Departamento"
+        verbose_name_plural = "Departamentos"
+
+    def __str__(self):
+        return self.nombre
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = build_unique_slug(Departamento, self.nombre, self.pk)
+        super().save(*args, **kwargs)
+
+
+class Seccion(models.Model):
+    departamento = models.ForeignKey(
+        Departamento,
+        on_delete=models.CASCADE,
+        related_name="secciones",
+    )
+    nombre = models.CharField(max_length=120)
+    descripcion = models.TextField(blank=True, null=True)
+    slug = models.SlugField(max_length=160, unique=True, blank=True)
+    orden = models.PositiveSmallIntegerField(default=0)
+
+    class Meta:
+        ordering = ("orden", "nombre")
+        verbose_name = "Sección"
+        verbose_name_plural = "Secciones"
+        unique_together = ("departamento", "nombre")
+
+    def __str__(self):
+        return f"{self.departamento.nombre} · {self.nombre}"
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = build_unique_slug(Seccion, self.nombre, self.pk)
+        super().save(*args, **kwargs)
+
 
 class Marca(models.Model):
     nombre = models.CharField(max_length=100)
     imagen = models.ImageField(upload_to="marcas/", blank=True, null=True)
+    slug = models.SlugField(max_length=160, unique=True, blank=True)
 
     class Meta:
         verbose_name = "Marca"
@@ -14,11 +63,25 @@ class Marca(models.Model):
     def __str__(self):
         return self.nombre
 
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = build_unique_slug(Marca, self.nombre, self.pk)
+        super().save(*args, **kwargs)
+
 
 class Categoria(models.Model):
+    seccion = models.ForeignKey(
+        Seccion,
+        on_delete=models.SET_NULL,
+        related_name="categorias",
+        blank=True,
+        null=True,
+        help_text="Permite replicar la jerarquía física de la tienda.",
+    )
     nombre = models.CharField(max_length=100)
     descripcion = models.TextField(blank=True, null=True)
     imagen = models.ImageField(upload_to="categorias/", blank=True, null=True)
+    slug = models.SlugField(max_length=160, unique=True, blank=True)
 
     class Meta:
         verbose_name = "Categoría"
@@ -26,6 +89,11 @@ class Categoria(models.Model):
 
     def __str__(self):
         return self.nombre
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = build_unique_slug(Categoria, self.nombre, self.pk)
+        super().save(*args, **kwargs)
 
 
 class Producto(models.Model):

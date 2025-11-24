@@ -3,60 +3,156 @@
         "model": "productos.marca",
         "pk": 1,
         "fields": {
-            "nombre": "Nike"
+            "nombre": "Nike",
+            "slug": "nike"
         }
     },
     {
         "model": "productos.marca",
         "pk": 2,
         "fields": {
-            "nombre": "Adidas"
+            "nombre": "Adidas",
+            "slug": "adidas"
         }
     },
     {
         "model": "productos.marca",
         "pk": 3,
         "fields": {
-            "nombre": "Puma"
+            "nombre": "Puma",
+            "slug": "puma"
         }
     },
     {
         "model": "productos.marca",
         "pk": 4,
         "fields": {
-            "nombre": "New Balance"
+            "nombre": "New Balance",
+            "slug": "new-balance"
+        }
+    },
+    {
+        "model": "productos.departamento",
+        "pk": 1,
+        "fields": {
+            "nombre": "Colección Performance",
+            "descripcion": "Modelos técnicos para entrenar y competir.",
+            "orden": 1,
+            "slug": "coleccion-performance"
+        }
+    },
+    {
+        "model": "productos.departamento",
+        "pk": 2,
+        "fields": {
+            "nombre": "Colección Urbana",
+            "descripcion": "Estilos pensados para la ciudad.",
+            "orden": 2,
+            "slug": "coleccion-urbana"
+        }
+    },
+    {
+        "model": "productos.departamento",
+        "pk": 3,
+        "fields": {
+            "nombre": "Colección Estacional",
+            "descripcion": "Selección ligera para climas cálidos.",
+            "orden": 3,
+            "slug": "coleccion-estacional"
+        }
+    },
+    {
+        "model": "productos.departamento",
+        "pk": 4,
+        "fields": {
+            "nombre": "Colección General",
+            "descripcion": "Fallback para nuevas categorías.",
+            "orden": 99,
+            "slug": "coleccion-general"
+        }
+    },
+    {
+        "model": "productos.seccion",
+        "pk": 1,
+        "fields": {
+            "departamento": 1,
+            "nombre": "Running & Training",
+            "descripcion": "Sneakers de alto rendimiento.",
+            "orden": 1,
+            "slug": "running-training"
+        }
+    },
+    {
+        "model": "productos.seccion",
+        "pk": 2,
+        "fields": {
+            "departamento": 2,
+            "nombre": "Lifestyle & Street",
+            "descripcion": "Modelos urbanos y casual.",
+            "orden": 1,
+            "slug": "lifestyle-street"
+        }
+    },
+    {
+        "model": "productos.seccion",
+        "pk": 3,
+        "fields": {
+            "departamento": 3,
+            "nombre": "Sandalias & Slides",
+            "descripcion": "Diseños estivales.",
+            "orden": 1,
+            "slug": "sandalias-slides"
+        }
+    },
+    {
+        "model": "productos.seccion",
+        "pk": 4,
+        "fields": {
+            "departamento": 4,
+            "nombre": "Selección Global",
+            "descripcion": "Sección comodín.",
+            "orden": 99,
+            "slug": "seleccion-global"
         }
     },
     {
         "model": "productos.categoria",
         "pk": 1,
         "fields": {
+            "seccion": 1,
             "nombre": "Zapatillas Deportivas",
-            "descripcion": "Calzado cómodo y ligero para el entrenamiento o uso diario"
+            "descripcion": "Calzado cómodo y ligero para el entrenamiento o uso diario",
+            "slug": "zapatillas-deportivas"
         }
     },
     {
         "model": "productos.categoria",
         "pk": 2,
         "fields": {
+            "seccion": 2,
             "nombre": "Botas Urbanas",
-            "descripcion": "Diseñadas para la ciudad con materiales resistentes y estilo moderno"
+            "descripcion": "Diseñadas para la ciudad con materiales resistentes y estilo moderno",
+            "slug": "botas-urbanas"
         }
     },
     {
         "model": "productos.categoria",
         "pk": 3,
         "fields": {
+            "seccion": 3,
             "nombre": "Sandalias",
-            "descripcion": "Calzado fresco para verano y climas cálidos"
+            "descripcion": "Calzado fresco para verano y climas cálidos",
+            "slug": "sandalias"
         }
     },
     {
         "model": "productos.categoria",
         "pk": 4,
         "fields": {
+            "seccion": 1,
             "nombre": "Running",
-            "descripcion": "Zapatillas técnicas diseñadas para correr largas distancias"
+            "descripcion": "Zapatillas técnicas diseñadas para correr largas distancias",
+            "slug": "running"
         }
     },
     {

@@ -53,73 +53,151 @@
     </header>
 
     <main class="contenedor seccion">
-        <section class="filtros">
-            <form class="filtros__form" method="get">
-                <div class="filtros__control filtros__control--espaciado">
-                    <label for="categoria">Explorar por categoría</label>
-                    <div class="select-wrapper select-wrapper--elevado">
-                        <select name="categoria" id="categoria" onchange="this.form.submit()">
-                            <option value="">Todas las categorías</option>
-                            {% for cat in categorias %}
-                                <option value="{{ cat.id }}"
-                                    {% if categoria_seleccionada and cat.id == categoria_seleccionada.id %}
-                                        selected
+        <section class="layout">
+            <aside class="lateral-nav" aria-label="Mapa de la tienda">
+                <div class="lateral-nav__header">
+                    <p class="section-eyebrow">Organización física</p>
+                    <h2>Recorrido por la tienda</h2>
+                </div>
+                <nav>
+                    <ul class="nav-tree">
+                        {% for dept in departamentos %}
+                        <li class="nav-tree__item">
+                            <a class="nav-tree__link {% if filtros_contexto.departamento and filtros_contexto.departamento.id == dept.id %}is-active{% endif %}"
+                               href="{{ base_path }}?departamento={{ dept.slug }}">{{ dept.nombre }}</a>
+                            {% if dept.secciones.all %}
+                            <ul>
+                                {% for section in dept.secciones.all %}
+                                <li>
+                                    <a class="nav-tree__link nav-tree__link--child {% if filtros_contexto.seccion and filtros_contexto.seccion.id == section.id %}is-active{% endif %}"
+                                       href="{{ base_path }}?departamento={{ dept.slug }}&seccion={{ section.slug }}">{{ section.nombre }}</a>
+                                    {% if section.categorias.all %}
+                                    <ul>
+                                        {% for cat in section.categorias.all %}
+                                        <li>
+                                            <a class="nav-tree__link nav-tree__link--grandchild {% if filtros_contexto.categoria and filtros_contexto.categoria.id == cat.id %}is-active{% endif %}"
+                                               href="{{ base_path }}?departamento={{ dept.slug }}&seccion={{ section.slug }}&categoria={{ cat.slug|default:cat.id }}">{{ cat.nombre }}</a>
+                                        </li>
+                                        {% endfor %}
+                                    </ul>
                                     {% endif %}
-                                >
-                                    {{ cat.nombre }}
-                                </option>
-                            {% endfor %}
-                        </select>
-                        <svg aria-hidden="true" focusable="false" class="select-icon" viewBox="0 0 20 20">
-                            <path d="M5 8l5 5 5-5" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" />
-                        </svg>
-                    </div>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                            {% endif %}
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </nav>
+                <div class="lateral-nav__footer">
+                    <a class="enlace-reset" href="{{ base_path }}">Limpiar filtros</a>
                 </div>
-                <noscript><button class="boton" type="submit">Filtrar</button></noscript>
-            </form>
-        </section>
+            </aside>
 
-        {% if productos %}
-        <div class="grid catalogo__grid">
-            {% for producto in productos %}
-            <article class="tarjeta producto">
-                <div class="producto__imagen">
-                    {% with thumb=producto.imagen_destacada %}
-                        {% if thumb %}
-                        <img src="{{ thumb.imagen.url }}" alt="{{ producto.nombre }}">
-                        {% else %}
-                        <img src="{% static 'images/placeholder.svg' %}" alt="Sin imagen disponible">
-                        {% endif %}
-                    {% endwith %}
-                    {% if producto.precio_oferta %}
-                    <span class="producto__badge">Oferta</span>
-                    {% endif %}
+            <section class="catalogo-principal">
+                <div class="filtros">
+                    <form class="filtros__form" method="get">
+                        <div class="filtros__control">
+                            <label for="categoria">Categoría rápida</label>
+                            <div class="select-wrapper select-wrapper--elevado">
+                                <select name="categoria" id="categoria" onchange="this.form.submit()">
+                                    <option value="">Todas las categorías</option>
+                                    {% for cat in categorias %}
+                                        <option value="{{ cat.slug|default:cat.id }}"
+                                            {% if filtros_contexto.categoria and cat.id == filtros_contexto.categoria.id %}
+                                                selected
+                                            {% endif %}
+                                        >
+                                            {{ cat.nombre }} ({{ cat.seccion.departamento.nombre }})
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                                <svg aria-hidden="true" focusable="false" class="select-icon" viewBox="0 0 20 20">
+                                    <path d="M5 8l5 5 5-5" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" />
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="filtros__control">
+                            <label for="fabricante">Fabricante</label>
+                            <div class="select-wrapper select-wrapper--elevado">
+                                <select name="fabricante" id="fabricante" onchange="this.form.submit()">
+                                    <option value="">Todos los fabricantes</option>
+                                    {% for marca in marcas %}
+                                        <option value="{{ marca.slug|default:marca.id }}" {% if filtros_contexto.marca and filtros_contexto.marca.id == marca.id %}selected{% endif %}>{{ marca.nombre }}</option>
+                                    {% endfor %}
+                                </select>
+                                <svg aria-hidden="true" focusable="false" class="select-icon" viewBox="0 0 20 20">
+                                    <path d="M5 8l5 5 5-5" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" />
+                                </svg>
+                            </div>
+                        </div>
+                        <noscript><button class="boton" type="submit">Filtrar</button></noscript>
+                    </form>
                 </div>
-                <div class="producto__contenido">
-                    <p class="producto__categoria">{{ producto.categoria.nombre }}</p>
-                    <h2>{{ producto.nombre }}</h2>
-                    <div class="producto__precio">
-                        {% if producto.precio_oferta %}
-                        <span class="precio-actual">{{ producto.precio_oferta }} &euro;</span>
-                        <span class="precio-tachado">{{ producto.precio }} &euro;</span>
-                        {% else %}
-                        <span class="precio-actual">{{ producto.precio }} &euro;</span>
-                        {% endif %}
+
+                {% if breadcrumb %}
+                <div class="breadcrumb">
+                    {% for crumb in breadcrumb %}
+                        <a href="{{ crumb.url }}">{{ crumb.label }}</a>
+                        {% if not forloop.last %}<span aria-hidden="true">/</span>{% endif %}
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                {% if chips %}
+                <div class="chips" aria-label="Filtros activos">
+                    {% for chip in chips %}
+                    <span class="chip">{{ chip.label }}
+                        <a href="{{ chip.url }}" aria-label="Quitar filtro {{ chip.label }}">×</a>
+                    </span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                {% if productos %}
+                <div class="grid catalogo__grid">
+                    {% for producto in productos %}
+                    <article class="tarjeta producto">
+                        <div class="producto__imagen">
+                            {% with thumb=producto.imagen_destacada %}
+                                {% if thumb %}
+                                <img src="{{ thumb.imagen.url }}" alt="{{ producto.nombre }}">
+                                {% else %}
+                                <img src="{% static 'images/placeholder.svg' %}" alt="Sin imagen disponible">
+                                {% endif %}
+                            {% endwith %}
+                            {% if producto.precio_oferta %}
+                            <span class="producto__badge">Oferta</span>
+                            {% endif %}
+                        </div>
+                        <div class="producto__contenido">
+                            <p class="producto__categoria">{{ producto.categoria.seccion.departamento.nombre }} · {{ producto.categoria.nombre }}</p>
+                            <h2>{{ producto.nombre }}</h2>
+                            <p class="producto__marca">{{ producto.marca.nombre }}</p>
+                            <div class="producto__precio">
+                                {% if producto.precio_oferta %}
+                                <span class="precio-actual">{{ producto.precio_oferta }} &euro;</span>
+                                <span class="precio-tachado">{{ producto.precio }} &euro;</span>
+                                {% else %}
+                                <span class="precio-actual">{{ producto.precio }} &euro;</span>
+                                {% endif %}
+                            </div>
+                            <a class="boton boton--ghost" href="{% url 'detalle-producto' producto.id %}">Ver detalles</a>
+                        </div>
+                    </article>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <section class="estado-vacio">
+                    <div>
+                        <p>No encontramos productos con los filtros actuales.</p>
+                        <p>Probá ajustar la búsqueda o volver al recorrido general.</p>
+                        <a class="boton" href="{{ base_path }}">Limpiar filtros</a>
                     </div>
-                    <a class="boton boton--ghost" href="{% url 'detalle-producto' producto.id %}">Ver detalles</a>
-                </div>
-            </article>
-            {% endfor %}
-        </div>
-        {% else %}
-        <section class="estado-vacio">
-            <div>
-                <p>Estamos seleccionando nuevos modelos en este momento.</p>
-                <p>Volvé pronto para descubrir las novedades de la colección Hermanos Parera.</p>
-                <a class="boton" href="{% url 'home' %}">Explorar otras secciones</a>
-            </div>
+                </section>
+                {% endif %}
+            </section>
         </section>
-        {% endif %}
     </main>
 
     <footer class="pie">
