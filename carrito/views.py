@@ -63,7 +63,15 @@ def ver_carrito(request):
 def agregar_al_carrito(request, producto_id):
     """Anade un producto al carrito o incrementa su cantidad."""
     producto = get_object_or_404(Producto, id=producto_id)
-    talla = request.POST.get("talla") or None
+    talla = (request.POST.get("talla") or "").strip() or None
+
+    if producto.tallas.exists() and not talla:
+        mensaje = "Selecciona una talla para este modelo."
+        if _es_peticion_ajax(request):
+            return JsonResponse({"error": mensaje}, status=400)
+        messages.error(request, mensaje)
+        return redirect("detalle-producto", pk=producto.id)
+
 
     try:
         cantidad = int(request.POST.get("cantidad", 1))

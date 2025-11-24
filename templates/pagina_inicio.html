@@ -31,6 +31,7 @@
                         <span id="landing-user-label">Sesión no iniciada</span>
                         <button type="button" class="boton boton--ghost landing-user__logout" id="logout-btn" hidden>Cerrar sesión</button>
                     </div>
+                    <a class="landing-cart-link" href="#seguimiento" aria-label="Ir a seguimiento de pedido">Seguimiento</a>
                     <a class="landing-cart-link" href="{% url 'carrito' %}" aria-label="Ir al carrito">
                         <span>Carrito</span>
                         <svg class="landing-cart-icon" viewBox="0 0 24 24" aria-hidden="true">
@@ -53,6 +54,7 @@
                     </p>
                     <div class="hero__cta">
                         <a class="boton" href="{% url 'lista-productos' %}">Ver catálogo</a>
+                        <a class="landing-cart-link" href="#seguimiento">Seguimiento de pedido</a>
                     </div>
                 </div>
             </div>
@@ -98,6 +100,11 @@
                         <h3>Registro</h3>
                         <p>Únete al Club Parera y recibe avances sobre lanzamientos exclusivos.</p>
                         <a href="{% url 'home' %}#registro-panel">Crear cuenta</a>
+                    </article>
+                    <article class="landing-card" id="seguimiento-card">
+                        <h3>Seguimiento de pedido</h3>
+                        <p>Consulta el estado de tu compra con tu número de pedido.</p>
+                        <a href="#seguimiento">Ir a seguimiento</a>
                     </article>
                 </div>
             </section>
@@ -147,6 +154,17 @@
                     <p class="section-eyebrow">Carrito de la compra</p>
                     <h2 class="section-heading">Tu selección, siempre a mano.</h2>
                     <a class="boton" href="{% url 'lista-productos' %}">Seguir comprando</a>
+                </div>
+            </section>
+
+            <section id="seguimiento" class="landing-section">
+                <div class="landing-panel">
+                    <p class="section-eyebrow">Seguimiento</p>
+                    <h2 class="section-heading">Consulta tu pedido</h2>
+                    <form class="landing-form" action="{% url 'pedidos:api-pedido-detalle' numero_pedido='PLACEHOLDER' %}" method="get" onsubmit="this.action=this.action.replace('PLACEHOLDER', encodeURIComponent(this.numero_pedido.value.trim()));">
+                        <input type="text" name="numero_pedido" placeholder="Número de pedido" required>
+                        <button class="boton" type="submit">Ver pedido</button>
+                    </form>
                 </div>
             </section>
 
