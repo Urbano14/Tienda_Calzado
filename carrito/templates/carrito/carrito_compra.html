@@ -122,7 +122,7 @@
                     <span>Total</span>
                     <strong data-resumen-total>{{ total_carrito|floatformat:2 }} &euro;</strong>
                 </div>
-                <a class="boton" href="#">Proceder al pago</a>
+                <a class="boton" href="{% url 'pedidos:checkout_entrega' %}">Proceder al pago</a>
                 <p class="carrito-summary__note">Los envíos y tasas se calcularán en el paso siguiente.</p>
             </aside>
         </div>

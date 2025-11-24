@@ -1,0 +1,105 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Checkout – Confirmación</title>
+    <link rel="stylesheet" href="{% static 'css/estilo.css' %}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body class="catalogo checkout-page">
+<header class="hero hero--detalle">
+    <div class="hero__nav contenedor">
+        <div class="brand">
+            <img class="brand__logo" src="{% static 'images/logoZHPfinalSinFondo.png' %}" alt="Logo Zapatería Hermanos Parera">
+            <div>
+                <p class="brand__eyebrow">Checkout · Paso 3 de 3</p>
+                <h1>Confirmación de compra</h1>
+                <p class="brand__tagline">Revisa tu pedido y prepara tus zapatillas favoritas.</p>
+            </div>
+        </div>
+        <div class="hero__actions">
+            <a class="boton boton--outline" href="{% url 'lista-productos' %}">Volver al catálogo</a>
+            <a class="boton" href="{% url 'carrito' %}">Ver carrito</a>
+        </div>
+    </div>
+</header>
+
+<main class="contenedor seccion checkout-contenido">
+    <section class="checkout-panel">
+        {% if pedido %}
+            <div class="checkout-panel__header">
+                <h2>Pedido confirmado</h2>
+                <p>Número de pedido: <strong>{{ pedido.numero_pedido }}</strong></p>
+            </div>
+            <p><strong>Fecha:</strong> {{ pedido.fecha_creacion }}</p>
+            <p><strong>Método de pago:</strong> {{ pedido.metodo_pago|title }}</p>
+            {% if pago.referencia_pago %}
+                <p><strong>Referencia:</strong> {{ pago.referencia_pago }}</p>
+            {% endif %}
+
+            <div class="checkout-address">
+                <h3>Dirección de envío</h3>
+                {% if entrega %}
+                    <p>{{ entrega.nombre }} {{ entrega.apellidos }}</p>
+                    <p>{{ entrega.direccion }}</p>
+                    {% if entrega.ciudad %}<p>{{ entrega.ciudad }} {{ entrega.codigo_postal }}</p>{% endif %}
+                    <p>{{ entrega.telefono }}</p>
+                {% else %}
+                    <p>{{ pedido.direccion_envio }}</p>
+                {% endif %}
+            </div>
+
+            <table class="tabla-resumen">
+                <thead>
+                <tr>
+                    <th>Producto</th>
+                    <th>Cantidad</th>
+                    <th>Total</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for item in pedido.items.all %}
+                    <tr>
+                        <td>{{ item.producto.nombre }}</td>
+                        <td>{{ item.cantidad }}</td>
+                        <td>{{ item.total }} €</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+
+            <div class="checkout-totales">
+                <p>Subtotal: {{ pedido.subtotal }} €</p>
+                <p>Impuestos: {{ pedido.impuestos }} €</p>
+                <p>Envío: {{ pedido.coste_entrega }} €</p>
+                <p class="checkout-totales__total">Total: {{ pedido.total }} €</p>
+            </div>
+        {% else %}
+            <div class="alerta alerta--error">
+                No se encontró un pedido confirmado. <a href="{% url 'pedidos:checkout_entrega' %}">Inicia nuevamente el proceso.</a>
+            </div>
+        {% endif %}
+    </section>
+    <aside class="checkout-summary">
+        <h3>Resumen de pasos</h3>
+        <ul class="checkout-steps">
+            <li class="checkout-steps__item checkout-steps__item--done">Entrega</li>
+            <li class="checkout-steps__item checkout-steps__item--done">Pago</li>
+            <li class="checkout-steps__item checkout-steps__item--active">Confirmación</li>
+        </ul>
+        <p>Recibirás un correo con la confirmación del pedido en los próximos minutos.</p>
+    </aside>
+</main>
+
+<footer class="pie">
+    <div class="contenedor pie__contenido">
+        <p>&copy; 2025 Zapatería Hermanos Parera. Todos los derechos reservados.</p>
+    </div>
+</footer>
+</body>
+</html>
