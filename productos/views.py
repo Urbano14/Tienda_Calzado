@@ -6,6 +6,10 @@ from django.shortcuts import render, get_object_or_404
 from rest_framework import generics
 
 from .models import Categoria, Departamento, Marca, Producto, Seccion
+
+
+HIDDEN_DEPARTAMENTOS = ("Colección General",)
+HIDDEN_SECCIONES = ("Selección Global",)
 from .serializers import CategoriaSerializer, ProductoSerializer
 
 
@@ -124,6 +128,8 @@ class CategoriaListView(generics.ListAPIView):
 def home(request):
     categorias_destacadas = (
         Categoria.objects.select_related("seccion", "seccion__departamento")
+        .exclude(seccion__nombre__in=HIDDEN_SECCIONES)
+        .exclude(seccion__departamento__nombre__in=HIDDEN_DEPARTAMENTOS)
         .order_by(
             "seccion__departamento__orden",
             "seccion__orden",
@@ -156,16 +162,23 @@ def lista_productos(request):
 
     productos, filtros_contexto = apply_catalog_filters(productos, filtros)
 
-    categorias = Categoria.objects.select_related(
-        "seccion",
-        "seccion__departamento",
-    ).order_by("seccion__departamento__orden", "seccion__orden", "nombre")
+    categorias = (
+        Categoria.objects.select_related(
+            "seccion",
+            "seccion__departamento",
+        )
+        .exclude(seccion__nombre__in=HIDDEN_SECCIONES)
+        .exclude(seccion__departamento__nombre__in=HIDDEN_DEPARTAMENTOS)
+        .order_by("seccion__departamento__orden", "seccion__orden", "nombre")
+    )
 
     departamentos = (
-        Departamento.objects.prefetch_related(
+        Departamento.objects.exclude(nombre__in=HIDDEN_DEPARTAMENTOS).prefetch_related(
             Prefetch(
                 "secciones",
-                queryset=Seccion.objects.prefetch_related("categorias").order_by("orden", "nombre"),
+                queryset=Seccion.objects.exclude(nombre__in=HIDDEN_SECCIONES)
+                .prefetch_related("categorias")
+                .order_by("orden", "nombre"),
             )
         )
         .order_by("orden", "nombre")
