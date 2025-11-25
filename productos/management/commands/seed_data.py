@@ -102,6 +102,21 @@ CATALOG_STRUCTURE = [
 
 LEGACY_CATEGORY_NAMES = ("Running", "Casual", "Trail", "Training")
 
+IMAGE_OVERRIDES = {
+    "Nike Air Zoom Pegasus 39": "productos/Nike_Air_Zoom_Pegasus_39.jpg",
+    "Adidas Ultraboost 22": "productos/Adids_Ultraboost_22.jpg",
+    "Puma Cali Dream": "productos/Puma_Cali_Dream.jpg",
+    "New Balance 574 Classic": "productos/New_Balance_574.jpg",
+    "Nike Air Force 1 Low": "productos/Air_Force_1_Low.jpg",
+    "Adidas Stan Smith": "productos/Stan_Smith.jpg",
+    "Puma Future Rider": "productos/Puma_Future_Rider.jpg",
+    "New Balance 327": "productos/New_Balance_327.jpg",
+    "Adidas Terrex Free Hiker": "productos/Adidas_Terrex_Free_Hiker.jpg",
+    "Nike Air Max 90": "productos/Air_Max_90_Slawn.jpg",
+    "Puma Leadcat 2.0": "productos/Puma_Leadcat_2.0.jpg",
+    "Adidas Adilette Comfort": "productos/Adilette.jpg",
+}
+
 PRODUCTS_DATA = [
     {
         "nombre": "AeroRun Swift 1",
@@ -258,6 +273,7 @@ class Command(BaseCommand):
         marca_objs = self._ensure_marcas(["AeroRun", "UrbanStep", "TrailMaster", "ZenWalk"])
         self._seed_products(categoria_map, marca_objs)
         self._cleanup_legacy_categories()
+        self._ensure_images_for_all_products()
         self._seed_cliente_demo()
         self.stdout.write(self.style.SUCCESS("Datos de ejemplo creados correctamente."))
 
@@ -350,6 +366,59 @@ class Command(BaseCommand):
         imagen_obj.imagen.save(placeholder_name, content, save=False)
         imagen_obj.es_principal = True
         imagen_obj.save()
+
+    def _ensure_images_for_all_products(self):
+        productos = Producto.objects.all()
+        created = 0
+        for producto in productos:
+            if producto.imagenes.exists():
+                continue
+
+            relative_path = self._find_existing_media(producto)
+            if relative_path:
+                ImagenProducto.objects.create(
+                    producto=producto,
+                    imagen=relative_path,
+                    es_principal=True,
+                )
+                created += 1
+                continue
+
+            placeholder = ContentFile(
+                base64.b64decode(PLACEHOLDER_IMAGE),
+                name=f"{slugify(producto.nombre)}.png",
+            )
+            ImagenProducto.objects.create(
+                producto=producto,
+                imagen=placeholder,
+                es_principal=True,
+            )
+            created += 1
+
+        if created:
+            self.stdout.write(f"Se añadieron imágenes faltantes a {created} productos.")
+
+    def _find_existing_media(self, producto):
+        candidates = []
+        override = IMAGE_OVERRIDES.get(producto.nombre)
+        if override:
+            candidates.append(override)
+
+        simple = producto.nombre.replace(" ", "_")
+        candidates.extend(
+            [
+                f"productos/{simple}.jpg",
+                f"productos/{simple}.png",
+                f"productos/{simple}.jpeg",
+                f"productos/{slugify(producto.nombre)}.jpg",
+                f"productos/{slugify(producto.nombre)}.png",
+            ]
+        )
+
+        for candidate in candidates:
+            if default_storage.exists(candidate):
+                return candidate
+        return None
 
     def _cleanup_legacy_categories(self):
         qs = Categoria.objects.filter(nombre__in=LEGACY_CATEGORY_NAMES, seccion__isnull=True)
