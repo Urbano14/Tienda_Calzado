@@ -30,3 +30,6 @@ urlpatterns = [
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+else:
+    # En despliegues simples sin servidor web dedicado a media, exponemos media/ con Django.
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -25,6 +25,7 @@ Rutas disponibles
 - API REST - Categorias: http://127.0.0.1:8000/api/categorias/
 - Panel de administración: http://127.0.0.1:8000/admin/
 - Imágenes de productos: se sirven desde `media/` (versiónada en el repo). Si añades o cambias imágenes, súbelas a `media/productos/` y haz `git add media/`.
+  - En despliegues sin servidor web estático dedicado, Django expone `MEDIA_URL` directamente (ver `tienda_virtual/urls.py`), así que con clonar y correr el server se deberían ver las fotos.
 
 Testing
 - Ejecutar toda la suite: `python manage.py test`
