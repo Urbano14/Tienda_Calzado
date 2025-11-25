@@ -9,7 +9,7 @@ Guía rápida
 
 2) Entorno y dependencias
 - `python -m venv .venv`
-- `.\.venv\Scripts\Activate.ps1`
+- `.\.venv\Scripts\activate`
 - `pip install -r requirements.txt`
 
 3) Ejecutar el servidor local
