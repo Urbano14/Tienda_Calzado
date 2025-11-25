@@ -335,6 +335,51 @@ a {
     color: rgba(255, 255, 255, 0.55);
 }
 
+.seguimiento-alert {
+    position: fixed;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    background: rgba(0, 0, 0, 0.55);
+    z-index: 999;
+}
+
+.seguimiento-alert[hidden] {
+    display: none;
+}
+
+.seguimiento-alert__card {
+    background: #111827;
+    color: var(--color-texto);
+    padding: 1.5rem;
+    border-radius: 18px;
+    width: min(90vw, 420px);
+    position: relative;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.seguimiento-alert__text {
+    margin: 0;
+    font-weight: 600;
+    line-height: 1.5;
+}
+
+.seguimiento-alert__close {
+    position: absolute;
+    top: 0.25rem;
+    right: 0.25rem;
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+.seguimiento-alert__close:hover {
+    color: #fff;
+}
+
 .landing-cta {
     background: linear-gradient(120deg, #111, #1d1e24);
     border-radius: 28px;

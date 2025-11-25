@@ -42,6 +42,9 @@
                     <div class="formulario__campo">
                         <label for="{{ field.id_for_label }}">{{ field.label }}</label>
                         {{ field }}
+                        {% if field.help_text %}
+                            <small class="formulario__ayuda">{{ field.help_text }}</small>
+                        {% endif %}
                         {% for error in field.errors %}
                             <p class="formulario__error">{{ error }}</p>
                         {% endfor %}

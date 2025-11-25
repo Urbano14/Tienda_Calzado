@@ -46,8 +46,17 @@
                 <h3>Dirección de envío</h3>
                 {% if entrega %}
                     <p>{{ entrega.nombre }} {{ entrega.apellidos }}</p>
-                    <p>{{ entrega.direccion }}</p>
-                    {% if entrega.ciudad %}<p>{{ entrega.ciudad }} {{ entrega.codigo_postal }}</p>{% endif %}
+                    <p>{{ entrega.direccion }} {% if entrega.numero %}{{ entrega.numero }}{% endif %}</p>
+                    {% if entrega.piso %}<p>{{ entrega.piso }}</p>{% endif %}
+                    <p>
+                        {% if entrega.codigo_postal %}{{ entrega.codigo_postal }}{% endif %}
+                        {% if entrega.ciudad %} {{ entrega.ciudad }}{% endif %}
+                    </p>
+                    <p>
+                        {% if entrega.provincia %}{{ entrega.provincia }}{% endif %}
+                        {% if entrega.pais %} · {{ entrega.pais }}{% endif %}
+                    </p>
+                    {% if entrega.referencias %}<p>Referencias: {{ entrega.referencias }}</p>{% endif %}
                     <p>{{ entrega.telefono }}</p>
                 {% else %}
                     <p>{{ pedido.direccion_envio }}</p>

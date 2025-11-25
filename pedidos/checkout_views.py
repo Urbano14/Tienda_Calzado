@@ -18,10 +18,39 @@ class DetallesEntregaForm(forms.Form):
     nombre = forms.CharField(max_length=150, label="Nombre")
     apellidos = forms.CharField(max_length=150, label="Apellidos")
     email = forms.EmailField(label="Correo electrónico")
-    direccion = forms.CharField(max_length=255, label="Dirección")
+    telefono = forms.RegexField(
+        regex=r"^\+?\d{9,15}$",
+        label="Teléfono de contacto",
+        help_text="Incluye prefijo si es un número internacional.",
+        error_messages={"invalid": "Introduce un teléfono válido (solo dígitos y prefijo opcional)."},
+    )
+    direccion = forms.CharField(
+        max_length=255,
+        label="Calle y vía",
+        help_text="Ej.: Avenida Andalucía",
+    )
+    numero = forms.CharField(
+        max_length=20,
+        label="Número",
+    )
+    piso = forms.CharField(
+        max_length=50,
+        label="Piso / Puerta (opcional)",
+        required=False,
+    )
     ciudad = forms.CharField(max_length=120, label="Ciudad")
-    codigo_postal = forms.CharField(max_length=20, label="Código Postal")
-    telefono = forms.CharField(max_length=30, label="Teléfono de contacto")
+    provincia = forms.CharField(max_length=120, label="Provincia")
+    codigo_postal = forms.RegexField(
+        regex=r"^\d{5}$",
+        label="Código Postal",
+        error_messages={"invalid": "El código postal debe tener 5 dígitos."},
+    )
+    pais = forms.CharField(max_length=80, label="País", initial="España")
+    referencias = forms.CharField(
+        label="Referencias para el repartidor (opcional)",
+        required=False,
+        widget=forms.Textarea(attrs={"rows": 3}),
+    )
 
 
 class DetallesPagoForm(forms.Form):
@@ -90,8 +119,9 @@ class DetallesEntregaView(CheckoutBaseView):
                 "nombre": request.user.first_name or request.user.username,
                 "apellidos": request.user.last_name,
                 "email": request.user.email,
+                "pais": "España",
             }
-        return {}
+        return {"pais": "España"}
 
 
 class DetallesPagoView(CheckoutBaseView):
@@ -145,10 +175,7 @@ class ConfirmacionCompraView(CheckoutBaseView):
         if pedido:
             return pedido
 
-        direccion_envio = entrega_data.get("direccion", "")
-        ciudad = entrega_data.get("ciudad", "")
-        codigo_postal = entrega_data.get("codigo_postal", "")
-        direccion_completa = ", ".join(filter(None, [direccion_envio, ciudad, codigo_postal]))
+        direccion_completa = self._direccion_formateada(entrega_data)
 
         payload = {
             "metodo_pago": pago_data.get("metodo_pago"),
@@ -193,5 +220,45 @@ class ConfirmacionCompraView(CheckoutBaseView):
             "apellidos": apellidos,
             "email": email,
             "direccion": pedido.direccion_envio,
+            "numero": "",
+            "piso": "",
+            "ciudad": "",
+            "provincia": "",
+            "codigo_postal": "",
+            "pais": "",
+            "referencias": "",
             "telefono": telefono,
         }
+
+    @staticmethod
+    def _direccion_formateada(entrega):
+        if not entrega:
+            return ""
+
+        linea_principal = " ".join(
+            filter(None, [entrega.get("direccion"), entrega.get("numero")])
+        )
+        linea_piso = entrega.get("piso")
+        localidad = ", ".join(
+            filter(
+                None,
+                [
+                    entrega.get("codigo_postal"),
+                    entrega.get("ciudad"),
+                    entrega.get("provincia"),
+                ],
+            )
+        )
+        pais = entrega.get("pais")
+        referencias = entrega.get("referencias")
+
+        partes = [linea_principal]
+        if linea_piso:
+            partes.append(linea_piso)
+        partes.append(localidad)
+        if pais:
+            partes.append(pais)
+        if referencias:
+            partes.append(f"Referencias: {referencias}")
+
+        return " | ".join(filter(None, partes))

@@ -161,10 +161,16 @@
                 <div class="landing-panel">
                     <p class="section-eyebrow">Seguimiento</p>
                     <h2 class="section-heading">Consulta tu pedido</h2>
-                    <form class="landing-form" action="{% url 'pedidos:api-pedido-detalle' numero_pedido='PLACEHOLDER' %}" method="get" onsubmit="this.action=this.action.replace('PLACEHOLDER', encodeURIComponent(this.numero_pedido.value.trim()));">
+                    <form class="landing-form" data-seguimiento-form action="{% url 'pedidos:api-pedido-detalle' numero_pedido='PLACEHOLDER' %}" method="get">
                         <input type="text" name="numero_pedido" placeholder="Número de pedido" required>
                         <button class="boton" type="submit">Ver pedido</button>
                     </form>
+                    <div class="seguimiento-alert" data-seguimiento-alert hidden>
+                        <div class="seguimiento-alert__card" role="alertdialog" aria-live="assertive">
+                            <button type="button" class="seguimiento-alert__close" data-seguimiento-alert-close aria-label="Cerrar">&times;</button>
+                            <p class="seguimiento-alert__text" data-seguimiento-alert-text></p>
+                        </div>
+                    </div>
                 </div>
             </section>
 
@@ -309,6 +315,76 @@
 
             handleAuthSubmit("registro-form", "registro-msg", "registro/");
             handleAuthSubmit("login-form", "login-msg", "login/");
+
+            const seguimientoForm = document.querySelector('[data-seguimiento-form]');
+            const seguimientoAlert = document.querySelector('[data-seguimiento-alert]');
+            const seguimientoText = document.querySelector('[data-seguimiento-alert-text]');
+            const seguimientoClose = document.querySelector('[data-seguimiento-alert-close]');
+
+            const showSeguimientoAlert = (message) => {
+                if (!seguimientoAlert) {
+                    window.alert(message);
+                    return;
+                }
+                if (seguimientoText) {
+                    seguimientoText.textContent = message;
+                }
+                seguimientoAlert.hidden = false;
+            };
+
+            const hideSeguimientoAlert = () => {
+                if (seguimientoAlert) {
+                    seguimientoAlert.hidden = true;
+                }
+            };
+
+            seguimientoClose?.addEventListener('click', hideSeguimientoAlert);
+            seguimientoAlert?.addEventListener('click', (event) => {
+                if (event.target === seguimientoAlert) {
+                    hideSeguimientoAlert();
+                }
+            });
+
+            seguimientoForm?.addEventListener('submit', async (event) => {
+                event.preventDefault();
+                const numeroInput = seguimientoForm.numero_pedido;
+                const numero = (numeroInput?.value || "").trim();
+                if (!numero) {
+                    showSeguimientoAlert("Introduce el número de pedido.");
+                    return;
+                }
+
+                const encoded = encodeURIComponent(numero);
+                const apiUrl = `/api/pedidos/${encoded}/`;
+
+                try {
+                    const response = await fetch(apiUrl, {
+                        headers: { Accept: "application/json" },
+                        credentials: "same-origin",
+                    });
+
+                    if (!response.ok) {
+                        if (response.status === 404) {
+                            throw new Error("No encontramos un pedido con ese número.");
+                        }
+                        if (response.status === 403) {
+                            throw new Error("Ese pedido está asociado a otra cuenta. Inicia sesión con la cuenta correcta.");
+                        }
+                        throw new Error("No pudimos recuperar el pedido. Inténtalo de nuevo.");
+                    }
+
+                    window.location.href = `/pedidos/${encoded}/`;
+                } catch (error) {
+                    showSeguimientoAlert(error.message || "Ocurrió un error inesperado.");
+                }
+            });
+
+            document.addEventListener('keydown', (event) => {
+                if (event.key === 'Escape') {
+                    hideSeguimientoAlert();
+                }
+            });
+
             updateUserUI();
         })();
     </script>

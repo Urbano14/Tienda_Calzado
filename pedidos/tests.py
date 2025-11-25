@@ -1,13 +1,14 @@
-from django.test import TestCase
-
-# Create your tests here.
 from decimal import Decimal
 
+from django.contrib.auth import get_user_model
 from django.test import TestCase
 from rest_framework.test import APIClient
 
 from productos.models import Producto, Marca, Categoria
 from pedidos.models import Pedido, ItemPedido
+from pedidos.checkout_views import DetallesEntregaForm, ConfirmacionCompraView
+
+User = get_user_model()
 
 
 class PedidoPublicAPITests(TestCase):
@@ -102,3 +103,89 @@ class PedidoPublicAPITests(TestCase):
         url = "/api/pedidos/NO_EXISTE_999/"
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 404)
+
+    def test_pedido_asignado_requiere_propietario(self):
+        user = User.objects.create_user(username="propietario", password="test123")
+        pedido_propietario = Pedido.objects.create(
+            numero_pedido="OWNER1",
+            estado=Pedido.Estados.PREPARANDO,
+            subtotal=Decimal("10"),
+            impuestos=Decimal("2"),
+            coste_entrega=Decimal("1"),
+            descuento=Decimal("0"),
+            total=Decimal("13"),
+            metodo_pago=Pedido.MetodosPago.TARJETA,
+            direccion_envio="Calle",
+            telefono="600000000",
+            cliente=user,
+        )
+
+        resp_anon = self.client.get(f"/api/pedidos/{pedido_propietario.numero_pedido}/")
+        self.assertEqual(resp_anon.status_code, 403)
+
+        otro = User.objects.create_user(username="intruso", password="test123")
+        self.client.force_login(otro)
+        resp_otro = self.client.get(f"/api/pedidos/{pedido_propietario.numero_pedido}/")
+        self.assertEqual(resp_otro.status_code, 403)
+        self.client.logout()
+
+        self.client.force_login(user)
+        resp_owner = self.client.get(f"/api/pedidos/{pedido_propietario.numero_pedido}/")
+        self.assertEqual(resp_owner.status_code, 200)
+
+
+class DetallesEntregaFormTests(TestCase):
+    def setUp(self):
+        self.base_data = {
+            "nombre": "Juan",
+            "apellidos": "Pérez",
+            "email": "juan@example.com",
+            "telefono": "+34666000111",
+            "direccion": "Calle Luna",
+            "numero": "12",
+            "piso": "3B",
+            "ciudad": "Sevilla",
+            "provincia": "Sevilla",
+            "codigo_postal": "41012",
+            "pais": "España",
+            "referencias": "Llamar al llegar",
+        }
+
+    def test_form_valido_con_direccion_completa(self):
+        form = DetallesEntregaForm(data=self.base_data)
+        self.assertTrue(form.is_valid())
+
+    def test_cp_invalido_generates_error(self):
+        data = self.base_data.copy()
+        data["codigo_postal"] = "ABC12"
+        form = DetallesEntregaForm(data=data)
+        self.assertFalse(form.is_valid())
+        self.assertIn("codigo_postal", form.errors)
+
+    def test_telefono_invalido_generates_error(self):
+        data = self.base_data.copy()
+        data["telefono"] = "123"
+        form = DetallesEntregaForm(data=data)
+        self.assertFalse(form.is_valid())
+        self.assertIn("telefono", form.errors)
+
+
+class DireccionFormateadaTests(TestCase):
+    def test_formatea_todos_los_componentes(self):
+        data = {
+            "direccion": "Avenida Andalucía",
+            "numero": "45",
+            "piso": "5º D",
+            "codigo_postal": "41011",
+            "ciudad": "Sevilla",
+            "provincia": "Sevilla",
+            "pais": "España",
+            "referencias": "Dejar en portería",
+        }
+
+        direccion = ConfirmacionCompraView._direccion_formateada(data)
+
+        self.assertIn("Avenida Andalucía 45", direccion)
+        self.assertIn("41011", direccion)
+        self.assertIn("Sevilla", direccion)
+        self.assertIn("Referencias", direccion)
