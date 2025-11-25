@@ -9,6 +9,55 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .gateway-grid {
+            display: grid;
+            gap: 1rem;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            margin-bottom: 2rem;
+        }
+        .gateway-card {
+            background: #f8fafc;
+            border: 1px solid rgba(15, 23, 42, 0.08);
+            border-radius: 16px;
+            padding: 1.25rem;
+            display: grid;
+            gap: 0.65rem;
+            box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+        }
+        .gateway-card__header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-weight: 600;
+            color: #0f172a;
+        }
+        .gateway-chip {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: #0f172a;
+            background: #e0f2fe;
+            border-radius: 999px;
+            padding: 0.15rem 0.7rem;
+            letter-spacing: 0.04em;
+        }
+        .gateway-card__body {
+            font-size: 0.95rem;
+            color: #475569;
+        }
+        .gateway-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: grid;
+            gap: 0.35rem;
+        }
+        .checkout-panel__title + p {
+            margin: 0 0 1.5rem;
+            color: #475569;
+        }
+    </style>
 </head>
 
 <body class="catalogo checkout-page">
@@ -32,6 +81,55 @@
 <main class="contenedor seccion checkout-contenido">
     <section class="checkout-panel">
         <h2 class="checkout-panel__title">Método de pago</h2>
+        <p>Seleccioná la pasarela que prefieras. Todas procesan el cobro con estándares PCI DSS y 3D Secure.</p>
+
+        <div class="gateway-grid" aria-label="Pasarelas disponibles">
+            <article class="gateway-card">
+                <div class="gateway-card__header">
+                    <span>Stripe</span>
+                    <span class="gateway-chip">Tarjetas</span>
+                </div>
+                <div class="gateway-card__body">
+                    <p>Acepta Visa, MasterCard y American Express con autenticación 3D Secure y tokenización.</p>
+                    <ul class="gateway-list">
+                        <li>• Cobro inmediato</li>
+                        <li>• Conversión automática de divisas</li>
+                        <li>• Reintentos inteligentes ante fallo</li>
+                    </ul>
+                </div>
+            </article>
+
+            <article class="gateway-card">
+                <div class="gateway-card__header">
+                    <span>PayPal</span>
+                    <span class="gateway-chip">Wallet</span>
+                </div>
+                <div class="gateway-card__body">
+                    <p>Permite pagar con saldo PayPal o tarjetas guardadas sin compartir datos con la tienda.</p>
+                    <ul class="gateway-list">
+                        <li>• Protección al comprador</li>
+                        <li>• Pagos en un clic</li>
+                        <li>• Integración Express Checkout</li>
+                    </ul>
+                </div>
+            </article>
+
+            <article class="gateway-card">
+                <div class="gateway-card__header">
+                    <span>Bizum</span>
+                    <span class="gateway-chip">Instantáneo</span>
+                </div>
+                <div class="gateway-card__body">
+                    <p>Confirmación inmediata desde tu app bancaria; ideal para clientes dentro de España.</p>
+                    <ul class="gateway-list">
+                        <li>• Sin comisiones para el comprador</li>
+                        <li>• Confirmación en tiempo real</li>
+                        <li>• Compatible con autenticación biométrica</li>
+                    </ul>
+                </div>
+            </article>
+        </div>
+
         <form method="post" class="formulario formulario--checkout">
             {% csrf_token %}
             {% if form.non_field_errors %}

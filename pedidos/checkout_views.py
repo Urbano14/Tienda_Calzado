@@ -55,10 +55,16 @@ class DetallesEntregaForm(forms.Form):
 
 class DetallesPagoForm(forms.Form):
     METODOS = (
-        ("tarjeta", "Tarjeta"),
+        ("tarjeta", "Tarjeta (Stripe)"),
+        ("paypal", "PayPal"),
+        ("bizum", "Bizum"),
         ("reembolso", "Pago contra reembolso"),
     )
-    metodo_pago = forms.ChoiceField(choices=METODOS, label="Método de pago")
+    metodo_pago = forms.ChoiceField(
+        choices=METODOS,
+        label="Método de pago",
+        help_text="Selecciona la pasarela con la que deseas completar el cobro.",
+    )
     referencia_pago = forms.CharField(
         required=False,
         label="Referencia de pago (opcional)",
