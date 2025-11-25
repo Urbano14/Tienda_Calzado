@@ -774,6 +774,64 @@ a {
     font-weight: 600;
 }
 
+.producto__badge--agotado {
+    left: auto;
+    right: 1rem;
+    background: rgba(248, 113, 113, 0.95);
+}
+
+.producto--agotado .producto__imagen::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+}
+
+.producto__stock {
+    margin: 0 0 0.8rem;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+}
+
+.producto__stock--agotado {
+    color: #fda4af;
+}
+
+.estado-stock {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    padding: 0.35rem 0.9rem;
+    border-radius: 999px;
+    border: 1px dashed rgba(255, 255, 255, 0.2);
+}
+
+.estado-stock--agotado {
+    color: #fecaca;
+    border-color: rgba(248, 113, 113, 0.4);
+}
+
+.estado-stock--badge {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: rgba(15, 15, 15, 0.85);
+}
+
+.detalle__principal {
+    position: relative;
+}
+
+.detalle__aviso {
+    color: var(--color-muted);
+    margin-top: 0.5rem;
+}
+
 .producto__contenido {
     padding: 1.5rem;
 }

@@ -1,6 +1,6 @@
 from urllib.parse import urlencode
 
-from django.db.models import Prefetch
+from django.db.models import Prefetch, Q
 from django.shortcuts import render, get_object_or_404
 
 from rest_framework import generics
@@ -100,7 +100,13 @@ class ProductoListView(generics.ListAPIView):
             or self.request.query_params.get("q")
         )
         if termino:
-            queryset = queryset.filter(nombre__icontains=termino.strip())
+            termino = termino.strip()
+            search_filter = Q(nombre__icontains=termino)
+            search_filter |= Q(categoria__nombre__icontains=termino)
+            search_filter |= Q(categoria__seccion__nombre__icontains=termino)
+            search_filter |= Q(categoria__seccion__departamento__nombre__icontains=termino)
+            search_filter |= Q(marca__nombre__icontains=termino)
+            queryset = queryset.filter(search_filter)
 
         return queryset
 
@@ -116,7 +122,19 @@ class CategoriaListView(generics.ListAPIView):
 
 
 def home(request):
-    return render(request, "pagina_inicio.html")
+    categorias_destacadas = (
+        Categoria.objects.select_related("seccion", "seccion__departamento")
+        .order_by(
+            "seccion__departamento__orden",
+            "seccion__orden",
+            "nombre",
+        )[:4]
+    )
+
+    context = {
+        "categorias_destacadas": categorias_destacadas,
+    }
+    return render(request, "pagina_inicio.html", context)
 
 
 def lista_productos(request):
@@ -241,16 +259,11 @@ def detalle_producto(request, pk):
         pk=pk,
     )
 
-    imagen_principal = (
-        producto.imagenes.filter(es_principal=True).first() or producto.imagenes.first()
-    )
+    imagen_principal = producto.imagen_destacada
 
     context = {
         "producto": producto,
         "imagen_principal": imagen_principal,
-        "otras_imagenes": producto.imagenes.exclude(id=imagen_principal.id)
-        if imagen_principal
-        else producto.imagenes.all(),
         "tallas": producto.tallas.all(),
     }
     return render(request, "productos/detalle_producto.html", context)

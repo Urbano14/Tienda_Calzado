@@ -1,5 +1,6 @@
 from decimal import Decimal
 
+from django.core.exceptions import ValidationError
 from django.db import models
 
 from .utils import build_unique_slug
@@ -137,7 +138,12 @@ class Producto(models.Model):
 
     @property
     def imagen_destacada(self):
-        return self.imagenes.filter(es_principal=True).first() or self.imagenes.first()
+        """Provee la única imagen asociada para simplificar el consumo en plantillas."""
+        return self.imagenes.first()
+
+    @property
+    def sin_stock(self):
+        return not self.esta_disponible
 
 
 class ImagenProducto(models.Model):
@@ -150,6 +156,24 @@ class ImagenProducto(models.Model):
     class Meta:
         verbose_name = "Imagen de producto"
         verbose_name_plural = "Imágenes de productos"
+        constraints = (
+            models.UniqueConstraint(
+                fields=("producto",), name="unique_imagen_por_producto"
+            ),
+        )
+
+    def clean(self):
+        if not self.producto_id:
+            return
+        qs = ImagenProducto.objects.filter(producto=self.producto)
+        if self.pk:
+            qs = qs.exclude(pk=self.pk)
+        if qs.exists():
+            raise ValidationError("Cada producto solo admite una imagen principal.")
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        return super().save(*args, **kwargs)
 
     def __str__(self):
         return f"Imagen de {self.producto.nombre}"

@@ -92,6 +92,9 @@
                 <p class="hero__lead">
                     {{ producto.descripcion|default:"Descubrí la comodidad y el estilo característico de Hermanos Parera en cada paso." }}
                 </p>
+                {% if producto.sin_stock %}
+                <p class="estado-stock estado-stock--agotado">Producto agotado. Te avisamos ni bien repongamos stock.</p>
+                {% endif %}
                 <div class="hero__stats hero__stats--detalle">
                     <div>
                         <span>
@@ -104,8 +107,13 @@
                         <p>Precio final</p>
                     </div>
                     <div>
-                        <span>{{ tallas|length }}</span>
-                        <p>Tallas disponibles</p>
+                        {% if producto.sin_stock %}
+                            <span>0</span>
+                            <p>Sin stock</p>
+                        {% else %}
+                            <span>{{ tallas|length }}</span>
+                            <p>Tallas disponibles</p>
+                        {% endif %}
                     </div>
                 </div>
             </div>
@@ -118,19 +126,14 @@
                 {% if imagen_principal %}
                 <div class="detalle__principal">
                     <img src="{{ imagen_principal.imagen.url }}" alt="{{ producto.nombre }}">
+                    {% if producto.sin_stock %}
+                    <span class="estado-stock estado-stock--badge">Agotado</span>
+                    {% endif %}
                 </div>
                 {% else %}
                 <div class="detalle__placeholder">
                     <img src="{% static 'images/placeholder.svg' %}" alt="Sin imagen disponible">
                     <p>Estamos preparando la sesión de fotos de este modelo.</p>
-                </div>
-                {% endif %}
-
-                {% if otras_imagenes %}
-                <div class="detalle__miniaturas">
-                    {% for imagen in otras_imagenes %}
-                    <img src="{{ imagen.imagen.url }}" alt="{{ producto.nombre }} {{ forloop.counter }}">
-                    {% endfor %}
                 </div>
                 {% endif %}
             </section>
@@ -142,6 +145,9 @@
                     <span class="precio-tachado">{{ producto.precio }} &euro;</span>
                     {% else %}
                     <span class="precio-actual">{{ producto.precio }} &euro;</span>
+                    {% endif %}
+                    {% if producto.sin_stock %}
+                    <span class="estado-stock estado-stock--agotado">Sin stock disponible</span>
                     {% endif %}
                 </div>
 
@@ -199,6 +205,7 @@
                         </form>
                     {% else %}
                         <p class="alerta alerta--warning">Sin stock disponible en este momento.</p>
+                        <p class="detalle__aviso">Podés dejarnos tu correo desde el formulario de contacto para avisarte cuando vuelva.</p>
                     {% endif %}
                 </section>
 

@@ -11,11 +11,19 @@ from .models import (
 )
 
 
+class ImagenProductoInline(admin.StackedInline):
+    model = ImagenProducto
+    extra = 0
+    max_num = 1
+    verbose_name_plural = "Imagen principal"
+
+
 @admin.register(Producto)
 class ProductoAdmin(admin.ModelAdmin):
     """Oculta el flag de disponibilidad para que dependa siempre del stock."""
 
     exclude = ("esta_disponible",)
+    inlines = (ImagenProductoInline,)
     list_display = (
         "nombre",
         "marca",
@@ -62,6 +70,4 @@ class CategoriaAdmin(admin.ModelAdmin):
     search_fields = ("nombre",)
     readonly_fields = ("slug",)
 
-
-admin.site.register(ImagenProducto)
 admin.site.register(TallaProducto)

@@ -123,30 +123,30 @@
 
             <section id="categorias" class="landing-section">
                 <div class="landing-section__header">
-                    <h2 class="section-heading">Categorías</h2>
+                    <p class="section-eyebrow">Colecciones destacadas</p>
+                    <h2 class="section-heading">Elegí por estilo o uso</h2>
+                    <p class="section-description">
+                        Curamos las familias de producto que la comunidad más busca para que llegues al catálogo filtrado con un solo clic.
+                    </p>
                 </div>
+                {% if categorias_destacadas %}
                 <div class="landing-card-grid">
+                    {% for categoria in categorias_destacadas %}
                     <article class="landing-card">
-                        <h3>Categoria X</h3>
-                        <p>Lo que sea.</p>
-                        <a href="{% url 'lista-productos' %}?categoria=running">Explorar</a>
+                        {% if categoria.seccion %}
+                        <p class="section-eyebrow">{{ categoria.seccion.departamento.nombre|default:"Coleccion" }} · {{ categoria.seccion.nombre|default:"Area" }}</p>
+                        {% endif %}
+                        <h3>{{ categoria.nombre }}</h3>
+                        <p>{{ categoria.descripcion|default:"Modelos seleccionados especialmente para esta categoria." }}</p>
+                        <a href="{% url 'lista-productos' %}?categoria={{ categoria.slug|default:categoria.id }}">Ver modelos</a>
                     </article>
-                    <article class="landing-card">
-                        <h3>Categoria X</h3>
-                        <p>Lo que sea.</p>
-                        <a href="{% url 'lista-productos' %}?categoria=zapatillas-deportivas">Ver línea</a>
-                    </article>
-                    <article class="landing-card">
-                        <h3>Categoria X</h3>
-                        <p>Lo que sea.</p>
-                        <a href="{% url 'lista-productos' %}?categoria=botas-urbanas">Descubrir</a>
-                    </article>
-                    <article class="landing-card">
-                        <h3>Categoria X</h3>
-                        <p>Lo que sea.</p>
-                        <a href="{% url 'lista-productos' %}?categoria=sandalias">Conocer</a>
-                    </article>
+                    {% endfor %}
                 </div>
+                {% else %}
+                <div class="landing-panel">
+                    <p class="section-description">Estamos cargando las categorias destacadas. Mientras tanto podés explorar todo el <a href="{% url 'lista-productos' %}">catálogo completo</a>.</p>
+                </div>
+                {% endif %}
             </section>
 
             <section id="carrito-panel" class="landing-section">

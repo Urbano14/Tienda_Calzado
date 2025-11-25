@@ -2,6 +2,7 @@ import shutil
 import tempfile
 from decimal import Decimal
 
+from django.core.exceptions import ValidationError
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase, override_settings
 from django.urls import reverse
@@ -151,6 +152,19 @@ class ProductoAPITestCase(MediaRootMixin, APITestCase):
         ids = {item["id"] for item in response.data}
         self.assertEqual(ids, {self.producto.id})
 
+    def test_product_list_endpoint_allows_advanced_search(self):
+        url = reverse("api-productos")
+
+        response = self.client.get(url, {"q": self.seccion.nombre})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        ids = {item["id"] for item in response.data}
+        self.assertEqual(ids, {self.producto.id})
+
+        response = self.client.get(url, {"q": self.otro_marca.nombre})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        ids = {item["id"] for item in response.data}
+        self.assertEqual(ids, {self.otro_producto.id})
+
 
 class ProductoViewsTestCase(MediaRootMixin, TestCase):
     def setUp(self):
@@ -242,28 +256,28 @@ class ProductoModelTestCase(MediaRootMixin, TestCase):
     def _image_file(self, name):
         return SimpleUploadedFile(name, b"fake image content", content_type="image/jpeg")
 
-    def test_imagen_destacada_returns_principal_if_exists(self):
-        secundaria = ImagenProducto.objects.create(
+    def test_imagen_destacada_returns_unique_image(self):
+        imagen = ImagenProducto.objects.create(
             producto=self.producto,
-            imagen=self._image_file("secundaria.jpg"),
-            es_principal=False,
+            imagen=self._image_file("unica.jpg"),
+            es_principal=True,
         )
-        principal = ImagenProducto.objects.create(
+
+        self.assertEqual(self.producto.imagen_destacada, imagen)
+
+    def test_segunda_imagen_levanta_error(self):
+        ImagenProducto.objects.create(
             producto=self.producto,
             imagen=self._image_file("principal.jpg"),
             es_principal=True,
         )
 
-        self.assertEqual(self.producto.imagen_destacada, principal)
-
-    def test_imagen_destacada_falls_back_to_first_image(self):
-        imagen = ImagenProducto.objects.create(
-            producto=self.producto,
-            imagen=self._image_file("unica.jpg"),
-            es_principal=False,
-        )
-
-        self.assertEqual(self.producto.imagen_destacada, imagen)
+        with self.assertRaises(ValidationError):
+            ImagenProducto.objects.create(
+                producto=self.producto,
+                imagen=self._image_file("extra.jpg"),
+                es_principal=False,
+            )
 
     def test_disponibilidad_sigue_el_stock(self):
         self.producto.stock = 0
