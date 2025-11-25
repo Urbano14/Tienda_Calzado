@@ -157,7 +157,7 @@
                 {% if productos %}
                 <div class="grid catalogo__grid">
                     {% for producto in productos %}
-                    <article class="tarjeta producto {% if producto.sin_stock %}producto--agotado{% endif %}">
+                    <article class="tarjeta producto {% if producto.stock|default:0 <= 0 %}producto--agotado{% endif %}">
                         <div class="producto__imagen">
                             {% with thumb=producto.imagen_destacada %}
                                 {% if thumb %}
@@ -166,7 +166,7 @@
                                 <img src="{% static 'images/placeholder.svg' %}" alt="Sin imagen disponible">
                                 {% endif %}
                             {% endwith %}
-                            {% if producto.sin_stock %}
+                            {% if producto.stock|default:0 <= 0 %}
                             <span class="producto__badge producto__badge--agotado">Agotado</span>
                             {% endif %}
                             {% if producto.precio_oferta %}
@@ -185,7 +185,7 @@
                                 <span class="precio-actual">{{ producto.precio }} &euro;</span>
                                 {% endif %}
                             </div>
-                            {% if producto.sin_stock %}
+                            {% if producto.stock|default:0 <= 0 %}
                             <p class="producto__stock producto__stock--agotado">Sin stock</p>
                             {% endif %}
                             <a class="boton boton--ghost" href="{% url 'detalle-producto' producto.id %}">Ver detalles</a>

@@ -24,6 +24,7 @@ Rutas disponibles
 - API REST - Productos: http://127.0.0.1:8000/api/productos/
 - API REST - Categorias: http://127.0.0.1:8000/api/categorias/
 - Panel de administración: http://127.0.0.1:8000/admin/
+- Imágenes de productos: se sirven desde `media/` (versiónada en el repo). Si añades o cambias imágenes, súbelas a `media/productos/` y haz `git add media/`.
 
 Testing
 - Ejecutar toda la suite: `python manage.py test`
