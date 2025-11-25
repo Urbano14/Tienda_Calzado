@@ -17,6 +17,7 @@ from productos.models import (
     Marca,
     Producto,
     Seccion,
+    TallaProducto,
 )
 
 
@@ -115,6 +116,16 @@ IMAGE_OVERRIDES = {
     "Nike Air Max 90": "productos/Air_Max_90_Slawn.jpg",
     "Puma Leadcat 2.0": "productos/Puma_Leadcat_2.0.jpg",
     "Adidas Adilette Comfort": "productos/Adilette.jpg",
+}
+
+DEFAULT_TALLAS = ["38", "39", "40", "41", "42", "43"]
+TALLA_SETS = {
+    "Running Profesional": ["38", "39", "40", "41", "42", "43", "44"],
+    "Trail Técnico": ["39", "40", "41", "42", "43", "44", "45"],
+    "Training Studio": ["36", "37", "38", "39", "40", "41"],
+    "Casual Premium": ["35", "36", "37", "38", "39", "40", "41", "42"],
+    "Street Icon": ["37", "38", "39", "40", "41", "42", "43"],
+    "Slides & Verano": ["35", "36", "37", "38", "39", "40", "41", "42", "43", "44"],
 }
 
 PRODUCTS_DATA = [
@@ -274,6 +285,7 @@ class Command(BaseCommand):
         self._seed_products(categoria_map, marca_objs)
         self._cleanup_legacy_categories()
         self._ensure_images_for_all_products()
+        self._ensure_tallas_for_all_products()
         self._seed_cliente_demo()
         self.stdout.write(self.style.SUCCESS("Datos de ejemplo creados correctamente."))
 
@@ -346,6 +358,7 @@ class Command(BaseCommand):
             )
 
             self._ensure_imagen_producto(producto, data.get("imagen"))
+            self._sync_tallas(producto)
 
         self.stdout.write("Productos sincronizados.")
 
@@ -419,6 +432,51 @@ class Command(BaseCommand):
             if default_storage.exists(candidate):
                 return candidate
         return None
+
+    def _ensure_tallas_for_all_products(self):
+        updated = 0
+        for producto in Producto.objects.select_related("categoria"):
+            if self._sync_tallas(producto):
+                updated += 1
+        if updated:
+            self.stdout.write(f"Tallas sincronizadas para {updated} productos.")
+
+    def _sync_tallas(self, producto):
+        categoria = producto.categoria.nombre if producto.categoria else None
+        tallas = TALLA_SETS.get(categoria) or DEFAULT_TALLAS
+        if not tallas:
+            return False
+
+        existing = set(producto.tallas.values_list("talla", flat=True))
+        target = set(tallas)
+        changed = False
+
+        stock = self._stock_por_categoria(categoria)
+        for talla in tallas:
+            _, created = TallaProducto.objects.update_or_create(
+                producto=producto,
+                talla=talla,
+                defaults={"stock": stock},
+            )
+            if created:
+                changed = True
+
+        sobrantes = existing - target
+        if sobrantes:
+            producto.tallas.filter(talla__in=sobrantes).delete()
+            changed = True
+
+        return changed
+
+    @staticmethod
+    def _stock_por_categoria(categoria_nombre):
+        if categoria_nombre in {"Running Profesional", "Trail Técnico"}:
+            return 24
+        if categoria_nombre in {"Casual Premium", "Street Icon"}:
+            return 30
+        if categoria_nombre == "Slides & Verano":
+            return 40
+        return 18
 
     def _cleanup_legacy_categories(self):
         qs = Categoria.objects.filter(nombre__in=LEGACY_CATEGORY_NAMES, seccion__isnull=True)
