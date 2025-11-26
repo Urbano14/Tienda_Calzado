@@ -32,6 +32,10 @@ Testing
 - Cubrimos: modelos y vistas/API de productos (stock, imagen destacada, precio vigente) y flujos del carrito (stock general y por talla, uso de precio_oferta, ajustes de cantidad y avisos).
 - Antes de probar manualmente, arranca el server con `python manage.py runserver` y usa las rutas de arriba.
 
+Correo de confirmaci��n
+- El checkout env��a un email real tras crear el pedido usando SMTP. Define estas variables de entorno antes de arrancar el server: `EMAIL_HOST`, `EMAIL_PORT`, `EMAIL_HOST_USER`, `EMAIL_HOST_PASSWORD`, `EMAIL_USE_TLS`/`EMAIL_USE_SSL` (1 �� 0) y `DEFAULT_FROM_EMAIL`.
+- Si quieres volver al backend de consola para desarrollo, exporta `EMAIL_BACKEND=django.core.mail.backends.console.EmailBackend`.
+
 Flujo Git sugerido
 - Crear rama: `git checkout -b feature/lo-que-sea`
 - Guardar cambios: `git add . && git commit -m "feat: descripcion breve"`

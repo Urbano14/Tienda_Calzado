@@ -12,9 +12,11 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 import os
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv(BASE_DIR / ".env")
 
 
 # Quick-start development settings - unsuitable for production
@@ -152,4 +154,32 @@ else:
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 PEDIDOS_IVA = os.getenv('PEDIDOS_IVA', '0.21')
 PEDIDOS_COSTE_ENTREGA = os.getenv('PEDIDOS_COSTE_ENTREGA', '5.00')
+
+
+def _bool_env(var_name: str, default: str = "false") -> bool:
+    return os.getenv(var_name, default).strip().lower() in {"1", "true", "yes", "on"}
+
+
+# Email configuration: console backend por defecto (entorno local) y SMTP cuando hay credenciales.
+DEFAULT_EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+SMTP_EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+
+env_email_host = os.getenv('EMAIL_HOST')
+env_email_user = os.getenv('EMAIL_HOST_USER')
+env_email_password = os.getenv('EMAIL_HOST_PASSWORD')
+smtp_configured = all([env_email_host, env_email_user, env_email_password])
+
+EMAIL_BACKEND = os.getenv('DJANGO_EMAIL_BACKEND')
+if not EMAIL_BACKEND:
+    EMAIL_BACKEND = SMTP_EMAIL_BACKEND if smtp_configured else DEFAULT_EMAIL_BACKEND
+elif EMAIL_BACKEND == SMTP_EMAIL_BACKEND and not smtp_configured:
+    EMAIL_BACKEND = DEFAULT_EMAIL_BACKEND
+
+EMAIL_HOST = env_email_host or 'smtp.gmail.com'
+EMAIL_PORT = int(os.getenv('EMAIL_PORT', '587'))
+EMAIL_HOST_USER = env_email_user or ''
+EMAIL_HOST_PASSWORD = env_email_password or ''
+EMAIL_USE_TLS = _bool_env('EMAIL_USE_TLS', 'true')
+EMAIL_USE_SSL = _bool_env('EMAIL_USE_SSL')
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'Zapateria Hermanos Parera <no-reply@zapateria.local>')
 

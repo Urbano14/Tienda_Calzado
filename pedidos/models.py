@@ -42,6 +42,7 @@ class Pedido(models.Model):
     total = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal("0"))
     metodo_pago = models.CharField(max_length=30, choices=MetodosPago.choices)
     direccion_envio = models.TextField()
+    email_contacto = models.EmailField(blank=True, null=True)
     telefono = models.CharField(max_length=30)
 
     class Meta:

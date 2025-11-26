@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Confirmacion de pedido {{ pedido.numero_pedido }}</title>
+    <style>
+        body {
+            font-family: "Helvetica Neue", Arial, sans-serif;
+            background-color: #f4f6fb;
+            margin: 0;
+            padding: 0;
+        }
+        .email-wrapper {
+            max-width: 640px;
+            margin: 0 auto;
+            padding: 24px;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 18px rgba(15, 23, 42, 0.12);
+        }
+        h1 {
+            color: #0f172a;
+        }
+        .pedido-meta {
+            color: #475569;
+            margin: 0 0 16px;
+        }
+        .destinatario {
+            margin: 0 0 24px;
+            color: #0f172a;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+        }
+        th, td {
+            padding: 8px;
+            border-bottom: 1px solid #e2e8f0;
+            text-align: left;
+            font-size: 14px;
+        }
+        th {
+            color: #0f172a;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+        .totales {
+            margin: 16px 0;
+            padding: 12px;
+            background-color: #f1f5f9;
+            border-radius: 8px;
+            color: #0f172a;
+        }
+        .direccion {
+            margin: 0 0 8px;
+            white-space: pre-line;
+        }
+        .footer {
+            text-align: center;
+            font-size: 12px;
+            color: #94a3b8;
+            margin-top: 24px;
+        }
+    </style>
+</head>
+<body>
+<div class="email-wrapper">
+    <h1>Gracias por tu compra</h1>
+    <p class="pedido-meta">
+        Pedido <strong>#{{ pedido.numero_pedido }}</strong> &mdash;
+        realizado el {{ pedido.fecha_creacion|date:"d/m/Y H:i" }}.
+    </p>
+    <p class="destinatario">
+        Hola {% if nombre_cliente %}{{ nombre_cliente }}{% else %}{{ destinatario }}{% endif %}, hemos recibido tu pedido y ya lo estamos preparando.
+    </p>
+
+    <h2>Resumen de articulos</h2>
+    <table role="presentation">
+        <thead>
+        <tr>
+            <th>Producto</th>
+            <th>Cant.</th>
+            <th>Precio</th>
+            <th>Total</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for item in items %}
+            <tr>
+                <td>
+                    {{ item.producto.nombre }}
+                    {% if item.talla %}
+                        <br><small>Talla {{ item.talla }}</small>
+                    {% endif %}
+                </td>
+                <td>{{ item.cantidad }}</td>
+                <td>{{ item.precio_unitario|floatformat:2 }} &euro;</td>
+                <td>{{ item.total|floatformat:2 }} &euro;</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="totales">
+        <p><strong>Total pagado:</strong> {{ total|floatformat:2 }} &euro;</p>
+        <p><strong>Metodo de pago:</strong> {{ metodo_pago }}</p>
+    </div>
+
+    <h3>Direccion de envio</h3>
+    <p class="direccion">{{ direccion_envio }}</p>
+    <p><strong>Telefono de contacto:</strong> {{ pedido.telefono }}</p>
+
+    <p>Si detectas algun error responde a este correo para poder ayudarte.</p>
+
+    <p class="footer">&copy; {% now "Y" %} Zapateria Hermanos Parera</p>
+</div>
+</body>
+</html>
