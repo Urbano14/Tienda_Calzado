@@ -183,3 +183,10 @@ EMAIL_USE_TLS = _bool_env('EMAIL_USE_TLS', 'true')
 EMAIL_USE_SSL = _bool_env('EMAIL_USE_SSL')
 DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'Zapateria Hermanos Parera <no-reply@zapateria.local>')
 
+
+STRIPE_PUBLISHABLE_KEY = os.getenv("STRIPE_PUBLISHABLE_KEY", "")
+STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY", "")
+STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET", "")
+STRIPE_DEFAULT_CURRENCY = os.getenv("STRIPE_DEFAULT_CURRENCY", "eur")
+STRIPE_API_VERSION = os.getenv("STRIPE_API_VERSION", "")
+

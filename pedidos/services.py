@@ -14,7 +14,7 @@ from rest_framework.exceptions import ValidationError
 
 from carrito.models import Carrito
 from pedidos.models import ItemPedido, Pedido
-from pedidos.emails import enviar_confirmacion_pedido
+from pedidos.emails import enviar_confirmacion_pedido as enviar_correo_confirmacion
 from productos.models import Producto, TallaProducto
 
 TWOPLACES = Decimal('0.01')
@@ -216,7 +216,8 @@ def crear_pedido_desde_carrito(usuario: Optional[User], datos_compra: Dict) -> P
         .prefetch_related('items__producto')
         .get(pk=pedido.pk)
     )
-    _notificar_confirmacion(pedido_refrescado)
+    if pedido_refrescado.metodo_pago != Pedido.MetodosPago.TARJETA:
+        disparar_confirmacion_pedido(pedido_refrescado)
     return pedido_refrescado
 
 
@@ -234,7 +235,11 @@ def _notificar_confirmacion(pedido: Pedido) -> None:
         logger.warning("Pedido %s sin email de contacto para notificar.", pedido.pk)
         return
 
-    enviado = enviar_confirmacion_pedido(pedido, destinatario)
+    enviado = enviar_correo_confirmacion(pedido, destinatario)
     if not enviado:
         logger.warning("No se pudo enviar la confirmación del pedido %s.", pedido.pk)
+
+
+def disparar_confirmacion_pedido(pedido: Pedido) -> None:
+    _notificar_confirmacion(pedido)
 

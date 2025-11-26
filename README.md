@@ -45,3 +45,10 @@ Normas rápidas
 - No subir `.venv/`, `db.sqlite3` ni archivos temporales (ya están en `.gitignore`).
 - Commits pequeños y claros; solo se fusiona a `main` código que funcione.
 - Describir y seguir tareas en issues de GitHub.
+
+Pagos con Stripe
+- Variables obligatorias en `.env`: `STRIPE_SECRET_KEY`, `STRIPE_PUBLISHABLE_KEY`, `STRIPE_WEBHOOK_SECRET` y opcionalmente `STRIPE_DEFAULT_CURRENCY` (por defecto `eur`). Sin esas claves la pantalla de confirmación mostrará un aviso y deshabilitará el pago con tarjeta.
+- El checkout crea un `PaymentIntent` por pedido y solo envía el correo de confirmación cuando Stripe confirma el cobro (webhook `payment_intent.succeeded`).
+- En local usa la CLI de Stripe: `stripe login` y luego `stripe listen --forward-to localhost:8000/pedidos/webhooks/stripe/`. Copia el `webhook secret` que te muestre y colócalo en `STRIPE_WEBHOOK_SECRET`.
+- En producción debes registrar el endpoint HTTPS `https://TU_DOMINIO/pedidos/webhooks/stripe/` en el dashboard de Stripe (Developers → Webhooks) y usar las claves live en las variables de entorno.
+- Si quieres personalizar la moneda o activar modos de captura manual, revisa `tienda_virtual/settings.py` y `pedidos/payment_gateways/stripe_gateway.py` para extender la configuración.

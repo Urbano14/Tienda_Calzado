@@ -6,6 +6,7 @@ from pedidos.checkout_views import (
     DetallesEntregaView,
     DetallesPagoView,
 )
+from pedidos.payment_gateways.views import StripeWebhookView
 from pedidos.views import PedidoPublicDetailView, pedido_detalle_publico
 
 app_name = 'pedidos'
@@ -17,5 +18,6 @@ urlpatterns = [
     path('checkout/confirmacion/', ConfirmacionCompraView.as_view(), name='checkout_confirmacion'),
     path('api/pedidos/<str:numero_pedido>/', PedidoPublicDetailView.as_view(), name="api-pedido-detalle"),
     path('pedidos/<str:numero_pedido>/', pedido_detalle_publico, name="api-pedido-detalle"),
+    path('webhooks/stripe/', StripeWebhookView.as_view(), name='stripe_webhook'),
 
 ]

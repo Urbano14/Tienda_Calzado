@@ -1,6 +1,8 @@
+import logging
 from decimal import Decimal
 
 from django import forms
+from django.conf import settings
 from django.contrib import messages
 from django.shortcuts import redirect, render
 from django.views import View
@@ -8,10 +10,13 @@ from django.views import View
 from carrito.utils import obtener_o_crear_carrito
 from pedidos.models import Pedido
 from pedidos.services import crear_pedido_desde_carrito
+from pedidos.payment_gateways import stripe_gateway
 
 CHECKOUT_ENTREGA_SESSION_KEY = "checkout_entrega"
 CHECKOUT_PAGO_SESSION_KEY = "checkout_pago"
 CHECKOUT_PEDIDO_ID_SESSION_KEY = "checkout_pedido_id"
+
+logger = logging.getLogger(__name__)
 
 
 class DetallesEntregaForm(forms.Form):
@@ -56,9 +61,7 @@ class DetallesEntregaForm(forms.Form):
 class DetallesPagoForm(forms.Form):
     METODOS = (
         ("tarjeta", "Tarjeta (Stripe)"),
-        ("paypal", "PayPal"),
-        ("bizum", "Bizum"),
-        ("reembolso", "Pago contra reembolso"),
+        ("contrareembolso", "Pago contra reembolso"),
     )
     metodo_pago = forms.ChoiceField(
         choices=METODOS,
@@ -165,6 +168,7 @@ class ConfirmacionCompraView(CheckoutBaseView):
             "entrega": entrega_data or self._entrega_desde_pedido(pedido),
             "pago": pago_data or {"metodo_pago": pedido.metodo_pago, "referencia_pago": ""},
         }
+        context.update(self._stripe_context(request, pedido))
         return render(request, self.template_name, context)
 
     def _obtener_o_crear_pedido(self, request, entrega_data, pago_data):
@@ -269,3 +273,24 @@ class ConfirmacionCompraView(CheckoutBaseView):
             partes.append(f"Referencias: {referencias}")
 
         return " | ".join(filter(None, partes))
+
+    def _stripe_context(self, request, pedido):
+        if not pedido or pedido.metodo_pago != Pedido.MetodosPago.TARJETA:
+            return {}
+
+        if not stripe_gateway.is_enabled():
+            return {
+                "stripe_error": "Configura STRIPE_SECRET_KEY y STRIPE_PUBLISHABLE_KEY para habilitar el pago con tarjeta.",
+            }
+
+        try:
+            intent = stripe_gateway.ensure_payment_intent(pedido)
+        except stripe_gateway.StripeGatewayError as exc:
+            logger.warning("No se pudo preparar Stripe para el pedido %s: %s", pedido.pk, exc)
+            return {"stripe_error": str(exc)}
+
+        return {
+            "stripe_public_key": settings.STRIPE_PUBLISHABLE_KEY,
+            "stripe_client_secret": intent.client_secret,
+            "stripe_return_url": request.build_absolute_uri(request.path),
+        }

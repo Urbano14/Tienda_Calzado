@@ -17,8 +17,6 @@ class Pedido(models.Model):
 
     class MetodosPago(models.TextChoices):
         TARJETA = "tarjeta", _("Tarjeta")
-        TRANSFERENCIA = "transferencia", _("Transferencia")
-        PAYPAL = "paypal", _("PayPal")
         CONTRAREEMBOLSO = "contrareembolso", _("Contrareembolso")
 
     cliente = models.ForeignKey(
@@ -44,6 +42,10 @@ class Pedido(models.Model):
     direccion_envio = models.TextField()
     email_contacto = models.EmailField(blank=True, null=True)
     telefono = models.CharField(max_length=30)
+    stripe_payment_intent_id = models.CharField(max_length=255, blank=True)
+    stripe_payment_status = models.CharField(max_length=50, blank=True)
+    stripe_charge_id = models.CharField(max_length=255, blank=True)
+    stripe_receipt_url = models.URLField(blank=True)
 
     class Meta:
         ordering = ("-fecha_creacion",)

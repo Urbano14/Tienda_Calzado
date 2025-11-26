@@ -88,6 +88,29 @@
                 <p>Envío: {{ pedido.coste_entrega }} €</p>
                 <p class="checkout-totales__total">Total: {{ pedido.total }} €</p>
             </div>
+
+            {% if stripe_public_key and stripe_client_secret %}
+                <div class="stripe-panel">
+                    <h3>Completa el pago con tarjeta</h3>
+                    <p class="stripe-panel__copy">Procesamos el cobro de forma segura mediante Stripe. Introduce los datos de tu tarjeta para finalizar.</p>
+                    <div id="stripe-config"
+                         data-public-key="{{ stripe_public_key }}"
+                         data-client-secret="{{ stripe_client_secret }}"
+                         data-return-url="{{ stripe_return_url }}">
+                    </div>
+                    <form id="stripe-payment-form">
+                        <div id="payment-element"></div>
+                        <button id="stripe-submit" class="boton" type="submit">
+                            Pagar {{ pedido.total }} €
+                        </button>
+                        <p id="payment-message" class="checkout-aviso" hidden></p>
+                    </form>
+                </div>
+            {% elif stripe_error %}
+                <div class="alerta alerta--error">
+                    No se ha podido preparar el pago con tarjeta: {{ stripe_error }}
+                </div>
+            {% endif %}
         {% else %}
             <div class="alerta alerta--error">
                 No se encontró un pedido confirmado. <a href="{% url 'pedidos:checkout_entrega' %}">Inicia nuevamente el proceso.</a>
@@ -106,5 +129,65 @@
 </main>
 
 {% include "includes/footer_no_devoluciones.html" %}
+{% if stripe_public_key and stripe_client_secret %}
+<script src="https://js.stripe.com/v3/"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const config = document.getElementById("stripe-config");
+        const form = document.getElementById("stripe-payment-form");
+        if (!config || !form) {
+            return;
+        }
+
+        const publicKey = config.dataset.publicKey;
+        const clientSecret = config.dataset.clientSecret;
+        const returnUrl = config.dataset.returnUrl;
+        if (!publicKey || !clientSecret) {
+            return;
+        }
+
+        const messageEl = document.getElementById("payment-message");
+        const submitButton = document.getElementById("stripe-submit");
+        const submitLabel = submitButton.textContent;
+
+        const stripe = Stripe(publicKey);
+        const elements = stripe.elements({clientSecret});
+        const paymentElement = elements.create("payment");
+        paymentElement.mount("#payment-element");
+
+        form.addEventListener("submit", async function (event) {
+            event.preventDefault();
+            submitButton.disabled = true;
+            submitButton.textContent = "Procesando...";
+            messageEl.hidden = true;
+
+            const {error, paymentIntent} = await stripe.confirmPayment({
+                elements,
+                redirect: "if_required",
+                confirmParams: {
+                    return_url: returnUrl,
+                },
+            });
+
+            if (error) {
+                messageEl.textContent = error.message || "No se pudo confirmar el pago. Revisa los datos.";
+                messageEl.hidden = false;
+                submitButton.disabled = false;
+                submitButton.textContent = submitLabel;
+                return;
+            }
+
+            if (paymentIntent && paymentIntent.status === "succeeded") {
+                messageEl.textContent = "Pago recibido. En unos instantes recibirás un correo de confirmación.";
+            } else {
+                messageEl.textContent = "Estamos verificando tu pago. Te avisaremos por correo en cuanto se complete.";
+            }
+            messageEl.hidden = false;
+            submitButton.disabled = true;
+            submitButton.classList.add("boton--disabled");
+        });
+    });
+</script>
+{% endif %}
 </body>
 </html>
