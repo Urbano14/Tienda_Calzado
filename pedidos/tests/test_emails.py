@@ -108,8 +108,8 @@ class CheckoutEmailFlowTests(TestCase):
 
     def _completar_pago(self):
         data = {
-            "metodo_pago": Pedido.MetodosPago.TARJETA,
-            "referencia_pago": "4242",
+            "metodo_pago": Pedido.MetodosPago.CONTRAREEMBOLSO,
+            "referencia_pago": "",
         }
         resp = self.client.post(reverse("pedidos:checkout_pago"), data)
         self.assertEqual(resp.status_code, 302)

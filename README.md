@@ -31,6 +31,7 @@ Testing
 - Ejecutar toda la suite: `python manage.py test`
 - Cubrimos: modelos y vistas/API de productos (stock, imagen destacada, precio vigente) y flujos del carrito (stock general y por talla, uso de precio_oferta, ajustes de cantidad y avisos).
 - Antes de probar manualmente, arranca el server con `python manage.py runserver` y usa las rutas de arriba.
+- Pruebas mínimas nuevas: `python manage.py test pedidos.tests.test_checkout_flow` (API y checkout de invitado) y `python manage.py test tienda_virtual.tests.test_security` para comprobar las políticas de seguridad.
 
 Correo de confirmaci��n
 - El checkout env��a un email real tras crear el pedido usando SMTP. Define estas variables de entorno antes de arrancar el server: `EMAIL_HOST`, `EMAIL_PORT`, `EMAIL_HOST_USER`, `EMAIL_HOST_PASSWORD`, `EMAIL_USE_TLS`/`EMAIL_USE_SSL` (1 �� 0) y `DEFAULT_FROM_EMAIL`.
@@ -52,3 +53,8 @@ Pagos con Stripe
 - En local usa la CLI de Stripe: `stripe login` y luego `stripe listen --forward-to localhost:8000/pedidos/webhooks/stripe/`. Copia el `webhook secret` que te muestre y colócalo en `STRIPE_WEBHOOK_SECRET`.
 - En producción debes registrar el endpoint HTTPS `https://TU_DOMINIO/pedidos/webhooks/stripe/` en el dashboard de Stripe (Developers → Webhooks) y usar las claves live en las variables de entorno.
 - Si quieres personalizar la moneda o activar modos de captura manual, revisa `tienda_virtual/settings.py` y `pedidos/payment_gateways/stripe_gateway.py` para extender la configuración.
+
+Seguridad en despliegue
+- Define `FORCE_HTTPS=1` en los entornos PaaS/producción para forzar redirecciones HTTPS, cookies seguras y HSTS (`SECURE_PROXY_SSL_HEADER` ya está configurado para `X-Forwarded-Proto`).
+- Las políticas de contraseñas de Django (longitud mínima, contraseñas comunes, etc.) se validan con las pruebas de `tienda_virtual.tests.test_security`.
+- Render (u otro PaaS) debe exponer la aplicación detrás de TLS; las pruebas anteriores garantizan que al activar `FORCE_HTTPS` la aplicación cumpla los requisitos de seguridad.

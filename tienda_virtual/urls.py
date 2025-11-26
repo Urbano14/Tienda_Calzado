@@ -11,6 +11,8 @@ urlpatterns = [
     path('carrito/', include('carrito.urls')),
     path('clientes/', include('clientes.urls')),
     path('pedidos/', include('pedidos.urls')),
+    path('api/', include('clientes.api_urls')),
+    path('api/', include('pedidos.api_urls')),
 ]
 
 # Servir MEDIA y archivos subidos por usuarios
