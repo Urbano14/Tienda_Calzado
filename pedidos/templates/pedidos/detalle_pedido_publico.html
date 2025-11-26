@@ -74,8 +74,6 @@
         </section>
     </main>
 
-    <footer class="site-footer seguimiento-footer">
-        <p>&copy; {{ pedido.fecha_creacion|date:"Y" }} ZHP Store</p>
-    </footer>
+    {% include "includes/footer_no_devoluciones.html" %}
 </body>
 </html>

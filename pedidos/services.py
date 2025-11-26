@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import uuid
+import logging
 from collections import defaultdict
 from decimal import Decimal, ROUND_HALF_UP
 from typing import Dict, Iterable, Optional, Tuple, Set
@@ -13,10 +14,12 @@ from rest_framework.exceptions import ValidationError
 
 from carrito.models import Carrito
 from pedidos.models import ItemPedido, Pedido
+from pedidos.emails import enviar_confirmacion_pedido
 from productos.models import Producto, TallaProducto
 
 TWOPLACES = Decimal('0.01')
 User = get_user_model()
+logger = logging.getLogger(__name__)
 
 
 def generar_numero_pedido() -> str:
@@ -98,6 +101,10 @@ def crear_pedido_desde_carrito(usuario: Optional[User], datos_compra: Dict) -> P
     metodo_pago = datos['metodo_pago']
     direccion_envio = datos['direccion_envio']
     telefono = datos['telefono']
+    email_contacto = datos.get('email_contacto')
+    if not email_contacto:
+        datos_cliente = datos.get('datos_cliente') or {}
+        email_contacto = datos_cliente.get('email')
 
     producto_ids = [item.producto_id for item in items_carrito]
 
@@ -170,6 +177,7 @@ def crear_pedido_desde_carrito(usuario: Optional[User], datos_compra: Dict) -> P
             total=totales['total'],
             metodo_pago=metodo_pago,
             direccion_envio=direccion_envio,
+            email_contacto=email_contacto,
             telefono=telefono,
         )
 
@@ -202,10 +210,31 @@ def crear_pedido_desde_carrito(usuario: Optional[User], datos_compra: Dict) -> P
         carrito.fecha_actualizacion = timezone.now()
         carrito.save(update_fields=['fecha_actualizacion'])
 
-    return (
+    pedido_refrescado = (
         Pedido.objects
         .select_related('cliente')
         .prefetch_related('items__producto')
         .get(pk=pedido.pk)
     )
+    _notificar_confirmacion(pedido_refrescado)
+    return pedido_refrescado
+
+
+def _destinatario_correo(pedido: Pedido) -> Optional[str]:
+    if pedido.email_contacto:
+        return pedido.email_contacto
+    if pedido.cliente and getattr(pedido.cliente, "email", ""):
+        return pedido.cliente.email
+    return None
+
+
+def _notificar_confirmacion(pedido: Pedido) -> None:
+    destinatario = _destinatario_correo(pedido)
+    if not destinatario:
+        logger.warning("Pedido %s sin email de contacto para notificar.", pedido.pk)
+        return
+
+    enviado = enviar_confirmacion_pedido(pedido, destinatario)
+    if not enviado:
+        logger.warning("No se pudo enviar la confirmación del pedido %s.", pedido.pk)
 

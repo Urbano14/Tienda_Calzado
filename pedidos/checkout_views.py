@@ -187,6 +187,7 @@ class ConfirmacionCompraView(CheckoutBaseView):
             "metodo_pago": pago_data.get("metodo_pago"),
             "direccion_envio": direccion_completa,
             "telefono": entrega_data.get("telefono"),
+            "email_contacto": entrega_data.get("email"),
             "descuento": Decimal("0"),
         }
 
