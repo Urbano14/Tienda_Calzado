@@ -23,54 +23,61 @@
         <section class="pedido-card">
             <h1>Detalles de tu pedido</h1>
 
-            <div class="pedido-meta">
-                <p><span class="label">N&uacute;mero de pedido:</span> {{ pedido.numero_pedido }}</p>
-                <p><span class="label">Fecha de creaci&oacute;n:</span> {{ pedido.fecha_creacion|date:"d/m/Y H:i" }}</p>
-                <p><span class="label">Estado:</span> {{ pedido.estado }}</p>
-            </div>
+            {% if pedido %}
+                <div class="pedido-meta">
+                    <p><span class="label">N&uacute;mero de pedido:</span> {{ pedido.numero_pedido }}</p>
+                    <p><span class="label">Fecha de creaci&oacute;n:</span> {{ pedido.fecha_creacion|date:"d/m/Y H:i" }}</p>
+                    <p><span class="label">Estado:</span> {{ pedido.estado }}</p>
+                </div>
 
-            <div class="pedido-resumen">
-                <h2>Resumen</h2>
-                <p><span class="label">Subtotal:</span> {{ pedido.subtotal }} &euro;</p>
-                <p><span class="label">Impuestos:</span> {{ pedido.impuestos }} &euro;</p>
-                <p><span class="label">Coste de entrega:</span> {{ pedido.coste_entrega }} &euro;</p>
-                <p><span class="label">Descuento:</span> {{ pedido.descuento }} &euro;</p>
-                <p class="pedido-total"><span class="label">Total:</span> {{ pedido.total }} &euro;</p>
-            </div>
+                <div class="pedido-resumen">
+                    <h2>Resumen</h2>
+                    <p><span class="label">Subtotal:</span> {{ pedido.subtotal }} &euro;</p>
+                    <p><span class="label">Impuestos:</span> {{ pedido.impuestos }} &euro;</p>
+                    <p><span class="label">Coste de entrega:</span> {{ pedido.coste_entrega }} &euro;</p>
+                    <p><span class="label">Descuento:</span> {{ pedido.descuento }} &euro;</p>
+                    <p class="pedido-total"><span class="label">Total:</span> {{ pedido.total }} &euro;</p>
+                </div>
 
-            <div class="pedido-items-wrapper">
-                <h2>Art&iacute;culos del pedido</h2>
-                {% if pedido.items.all %}
-                    <table class="pedido-items">
-                        <thead>
-                        <tr>
-                            <th>Producto</th>
-                            <th>Talla</th>
-                            <th>Cantidad</th>
-                            <th>Precio unitario</th>
-                            <th>Total</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {% for item in pedido.items.all %}
+                <div class="pedido-items-wrapper">
+                    <h2>Art&iacute;culos del pedido</h2>
+                    {% if pedido.items.all %}
+                        <table class="pedido-items">
+                            <thead>
                             <tr>
-                                <td>{{ item.producto.nombre }}</td>
-                                <td>{{ item.talla|default:"-" }}</td>
-                                <td>{{ item.cantidad }}</td>
-                                <td>{{ item.precio_unitario }} &euro;</td>
-                                <td>{{ item.total }} &euro;</td>
+                                <th>Producto</th>
+                                <th>Talla</th>
+                                <th>Cantidad</th>
+                                <th>Precio unitario</th>
+                                <th>Total</th>
                             </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
-                {% else %}
-                    <p class="sin-items">Este pedido no tiene art&iacute;culos.</p>
-                {% endif %}
-            </div>
+                            </thead>
+                            <tbody>
+                            {% for item in pedido.items.all %}
+                                <tr>
+                                    <td>{{ item.producto.nombre }}</td>
+                                    <td>{{ item.talla|default:"-" }}</td>
+                                    <td>{{ item.cantidad }}</td>
+                                    <td>{{ item.precio_unitario }} &euro;</td>
+                                    <td>{{ item.total }} &euro;</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        <p class="sin-items">Este pedido no tiene art&iacute;culos.</p>
+                    {% endif %}
+                </div>
 
-            <div class="pedido-acciones">
-                <a href="/" class="btn btn-primario">Volver a la tienda</a>
-            </div>
+                <div class="pedido-acciones">
+                    <a href="/" class="btn btn-primario">Volver a la tienda</a>
+                </div>
+            {% else %}
+                <div class="seguimiento-error">
+                    <p>{{ mensaje_error|default:"No hemos encontrado ese pedido." }}</p>
+                    <a href="/" class="btn btn-primario">Volver a la tienda</a>
+                </div>
+            {% endif %}
         </section>
     </main>
 

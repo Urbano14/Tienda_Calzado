@@ -1,3 +1,5 @@
+import uuid
+
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import render, get_object_or_404
 from rest_framework import generics, permissions
@@ -7,6 +9,7 @@ from .models import Pedido
 from .serializers import PedidoPublicSerializer
 
 # Create your views here.
+
 
 class PedidoPublicDetailView(generics.RetrieveAPIView):
     queryset = Pedido.objects.all().prefetch_related("items", "items__producto")
@@ -28,10 +31,19 @@ class PedidoPublicDetailView(generics.RetrieveAPIView):
 
 
 def pedido_detalle_publico(request, numero_pedido):
-    pedido = get_object_or_404(
-        Pedido.objects.prefetch_related("items", "items__producto"),
-        numero_pedido=numero_pedido,
+    pedido = (
+        Pedido.objects.prefetch_related("items", "items__producto")
+        .filter(numero_pedido=numero_pedido)
+        .first()
     )
+
+    if not pedido:
+        return render(
+            request,
+            "pedidos/detalle_pedido_publico.html",
+            {"pedido": None, "mensaje_error": "No encontramos ese pedido."},
+            status=404,
+        )
 
     if pedido.cliente and pedido.cliente != request.user:
         raise PermissionDenied("No puedes ver este pedido.")
@@ -55,10 +67,24 @@ def _mask_phone(phone: str) -> str:
 
 
 def seguimiento_pedido(request, tracking_token):
-    pedido = get_object_or_404(
-        Pedido.objects.prefetch_related("items__producto"),
-        tracking_token=tracking_token,
-    )
+    try:
+        token_uuid = uuid.UUID(str(tracking_token))
+    except (ValueError, TypeError):
+        pedido = None
+    else:
+        pedido = (
+            Pedido.objects.prefetch_related("items__producto")
+            .filter(tracking_token=token_uuid)
+            .first()
+        )
+
+    if not pedido:
+        return render(
+            request,
+            "pedido/seguimiento.html",
+            {"pedido": None, "masked_phone": ""},
+            status=404,
+        )
     context = {
         "pedido": pedido,
         "masked_phone": _mask_phone(pedido.telefono),
