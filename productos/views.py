@@ -341,10 +341,11 @@ def detalle_producto(request, pk):
     )
 
     imagen_principal = producto.imagen_destacada
+    tallas_disponibles = producto.tallas.filter(stock__gt=0).order_by("talla")
 
     context = {
         "producto": producto,
         "imagen_principal": imagen_principal,
-        "tallas": producto.tallas.all(),
+        "tallas": tallas_disponibles,
     }
     return render(request, "productos/detalle_producto.html", context)

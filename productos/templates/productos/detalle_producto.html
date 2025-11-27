@@ -55,6 +55,27 @@
         .modal-alert__close:hover {
             color: #fff;
         }
+        .detalle__tallas ul {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            padding: 0;
+            list-style: none;
+        }
+        .detalle__tallas li {
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            background: #f8fafc;
+            color: #111827;
+            font-weight: 600;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+            display: inline-block;
+        }
+        .detalle__tallas li span {
+            color: #0f172a !important;
+            opacity: 1;
+        }
     </style>
 </head>
 
@@ -175,14 +196,11 @@
                     {% if tallas %}
                     <ul>
                         {% for talla in tallas %}
-                        <li>
-                            <span>{{ talla.talla }}</span>
-                            <small>{{ talla.stock }} uds</small>
-                        </li>
+                        <li><span>{{ talla.talla }}</span></li>
                         {% endfor %}
                     </ul>
                     {% else %}
-                    <p>No hay tallas asociadas actualmente.</p>
+                    <p>No hay tallas disponibles en este momento.</p>
                     {% endif %}
                 </article>
 
@@ -197,7 +215,7 @@
                                 <select id="talla" name="talla">
                                     <option value="">Cualquier talla</option>
                                     {% for talla in tallas %}
-                                    <option value="{{ talla.talla }}">{{ talla.talla }} ({{ talla.stock }} uds)</option>
+                                    <option value="{{ talla.talla }}">{{ talla.talla }}</option>
                                     {% endfor %}
                                 </select>
                             </div>
