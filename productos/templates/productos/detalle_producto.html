@@ -92,6 +92,9 @@
                 <p class="hero__lead">
                     {{ producto.descripcion|default:"Descubrí la comodidad y el estilo característico de Hermanos Parera en cada paso." }}
                 </p>
+                <div class="hero__search">
+                    {% include "includes/buscador_global.html" with input_id="busqueda-detalle" initial_query=request.GET.q %}
+                </div>
                 {% if producto.sin_stock %}
                 <p class="estado-stock estado-stock--agotado">Producto agotado. Te avisamos ni bien repongamos stock.</p>
                 {% endif %}

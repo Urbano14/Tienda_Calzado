@@ -264,6 +264,74 @@ def lista_productos(request):
     return render(request, "productos/lista_productos.html", context)
 
 
+def buscar_productos(request):
+    filtros = {
+        "departamento": request.GET.get("departamento"),
+        "seccion": request.GET.get("seccion"),
+        "categoria": request.GET.get("categoria"),
+        "fabricante": request.GET.get("fabricante"),
+    }
+
+    productos = (
+        Producto.objects.select_related(
+            "categoria",
+            "categoria__seccion",
+            "categoria__seccion__departamento",
+            "marca",
+        ).prefetch_related("imagenes")
+    )
+
+    productos, filtros_contexto = apply_catalog_filters(productos, filtros)
+
+    termino = (request.GET.get("q") or "").strip()
+    if termino:
+        search_filter = Q(nombre__icontains=termino)
+        search_filter |= Q(categoria__nombre__icontains=termino)
+        search_filter |= Q(categoria__seccion__nombre__icontains=termino)
+        search_filter |= Q(categoria__seccion__departamento__nombre__icontains=termino)
+        search_filter |= Q(marca__nombre__icontains=termino)
+        productos = productos.filter(search_filter)
+
+    productos = productos.order_by("nombre")
+
+    departamentos = (
+        Departamento.objects.exclude(nombre__in=HIDDEN_DEPARTAMENTOS)
+        .prefetch_related(
+            Prefetch(
+                "secciones",
+                queryset=Seccion.objects.exclude(nombre__in=HIDDEN_SECCIONES).order_by(
+                    "orden", "nombre"
+                ),
+            )
+        )
+        .order_by("orden", "nombre")
+    )
+
+    secciones = (
+        Seccion.objects.select_related("departamento")
+        .exclude(nombre__in=HIDDEN_SECCIONES)
+        .order_by("departamento__orden", "orden", "nombre")
+    )
+    marcas = Marca.objects.order_by("nombre")
+
+    active_params = {k: v for k, v in filtros.items() if v}
+    if termino:
+        active_params["q"] = termino
+
+    context = {
+        "productos": productos,
+        "termino": termino,
+        "departamentos": departamentos,
+        "secciones": secciones,
+        "marcas": marcas,
+        "filtros": filtros,
+        "filtros_contexto": filtros_contexto,
+        "active_params": active_params,
+        "base_path": request.path,
+    }
+    return render(request, "catalogo/busqueda.html", context)
+
+
 def detalle_producto(request, pk):
     producto = get_object_or_404(
         Producto.objects.select_related("categoria", "marca").prefetch_related(

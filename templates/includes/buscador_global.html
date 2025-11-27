@@ -1,0 +1,15 @@
+{% with field_id=input_id|default:"busqueda-global" %}
+<form class="buscador-global" action="{% url 'buscar-productos' %}" method="get">
+    <label class="sr-only" for="{{ field_id }}">Buscar productos</label>
+    <input
+        class="buscador-global__input"
+        type="search"
+        id="{{ field_id }}"
+        name="q"
+        placeholder="Buscar productos..."
+        value="{{ initial_query|default:'' }}"
+        required
+    >
+    <button class="boton buscador-global__button" type="submit">Buscar</button>
+</form>
+{% endwith %}

@@ -198,6 +198,27 @@ a {
     height: 1.5rem;
 }
 
+.buscador-global {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    width: 100%;
+    max-width: 420px;
+}
+
+.buscador-global__input {
+    flex: 1;
+    padding: 0.65rem 0.85rem;
+    border: 1px solid rgba(15, 23, 42, 0.16);
+    border-radius: 999px;
+    font-size: 1rem;
+    font-family: 'Montserrat', Arial, sans-serif;
+}
+
+.buscador-global__button {
+    flex-shrink: 0;
+}
+
 .landing-hero {
     margin-top: 3rem;
     display: grid;
@@ -223,6 +244,10 @@ a {
     color: var(--color-muted);
     font-size: 1.05rem;
     margin-bottom: 1.5rem;
+}
+
+.landing-search {
+    margin: 1.25rem 0 1.5rem;
 }
 
 .hero__cta {
@@ -518,6 +543,10 @@ a {
 .hero__stats {
     display: flex;
     gap: 1.75rem;
+}
+
+.hero__search {
+    margin: 1rem 0 1.5rem;
 }
 
 .hero__stats span {

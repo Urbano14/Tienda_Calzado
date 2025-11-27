@@ -98,15 +98,17 @@ class Categoria(models.Model):
 
 
 class Producto(models.Model):
-    nombre = models.CharField(max_length=200)
+    nombre = models.CharField(max_length=200, db_index=True)
     descripcion = models.TextField(blank=True, null=True)
     precio = models.DecimalField(max_digits=10, decimal_places=2)
     precio_oferta = models.DecimalField(
         max_digits=10, decimal_places=2, blank=True, null=True
     )
-    marca = models.ForeignKey(Marca, on_delete=models.CASCADE, related_name="productos")
+    marca = models.ForeignKey(
+        Marca, on_delete=models.CASCADE, related_name="productos", db_index=True
+    )
     categoria = models.ForeignKey(
-        Categoria, on_delete=models.CASCADE, related_name="productos"
+        Categoria, on_delete=models.CASCADE, related_name="productos", db_index=True
     )
     genero = models.CharField(max_length=50, blank=True, null=True)
     color = models.CharField(max_length=50, blank=True, null=True)

@@ -51,6 +51,9 @@
                         Somos una boutique especializada en sneakers y calzado deportivo premium. Traemos lanzamientos globales a la puerta de tu casa
                         y enviamos a todo el país.
                     </p>
+                    <div class="landing-search">
+                        {% include "includes/buscador_global.html" with input_id="busqueda-home" %}
+                    </div>
                     <div class="hero__cta">
                         <a class="boton" href="{% url 'lista-productos' %}">Ver catálogo</a>
                         <a class="landing-cart-link" href="#seguimiento">Seguimiento de pedido</a>

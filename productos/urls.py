@@ -3,6 +3,7 @@ from productos.views import (
     home,
     lista_productos,
     detalle_producto,
+    buscar_productos,
     ProductoListView,
     ProductoDetailView,
     CategoriaListView,
@@ -11,6 +12,7 @@ from productos.views import (
 urlpatterns = [
     path("", home, name="home"),
     path("productos/", lista_productos, name="lista-productos"),
+    path("catalogo/buscar/", buscar_productos, name="buscar-productos"),
     path("productos/<int:pk>/", detalle_producto, name="detalle-producto"),
     path("api/productos/", ProductoListView.as_view(), name="api-productos"),
     path(

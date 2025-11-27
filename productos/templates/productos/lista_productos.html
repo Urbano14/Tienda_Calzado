@@ -34,6 +34,9 @@
                 <p class="hero__lead">
                     Seleccionamos cada par con materiales premium y acabados impecables para acompañarte en tus mejores momentos.
                 </p>
+                <div class="hero__search">
+                    {% include "includes/buscador_global.html" with input_id="busqueda-catalogo" initial_query=request.GET.q %}
+                </div>
                 <div class="hero__stats">
                     <div>
                         <span>{{ productos|length }}</span>
