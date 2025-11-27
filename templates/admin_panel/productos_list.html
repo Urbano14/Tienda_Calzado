@@ -18,6 +18,7 @@
                     <th>Marca</th>
                     <th>Categoría</th>
                     <th>Stock</th>
+                    <th>Tallas</th>
                     <th>Destacado</th>
                     <th></th>
                 </tr>
@@ -29,6 +30,11 @@
                         <td>{{ producto.marca }}</td>
                         <td>{{ producto.categoria }}</td>
                         <td>{{ producto.stock }}</td>
+                        <td>
+                            {% for talla in producto.tallas.all %}
+                                {{ talla.talla }}{% if not forloop.last %}, {% endif %}
+                            {% empty %}-{% endfor %}
+                        </td>
                         <td>{% if producto.es_destacado %}Sí{% else %}No{% endif %}</td>
                         <td class="text-end">
                             <a class="btn btn-sm btn-outline-primary" href="{% url 'admin_panel:producto_editar' producto.pk %}">Editar</a>

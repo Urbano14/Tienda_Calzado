@@ -45,6 +45,12 @@
                 <code style="word-break: break-all;">{{ pedido.tracking_token }}</code>
             </div>
         </div>
+        <div class="card p-3 mb-3">
+            <h2 class="h6">Contacto y entrega</h2>
+            <div class="mb-2"><span class="text-muted small">Correo:</span><br>{{ pedido.email_contacto|default:"-" }}</div>
+            <div class="mb-2"><span class="text-muted small">Teléfono:</span><br>{{ pedido.telefono|default:"-" }}</div>
+            <div class="mb-2"><span class="text-muted small">Dirección:</span><br>{{ pedido.direccion_envio|linebreaksbr }}</div>
+        </div>
         <div class="card p-3">
             <h2 class="h6">Importes</h2>
             <div class="d-flex justify-content-between"><span>Subtotal</span><span>{{ pedido.subtotal }} €</span></div>
