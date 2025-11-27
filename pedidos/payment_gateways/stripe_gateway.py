@@ -4,7 +4,10 @@ import logging
 from decimal import Decimal
 from typing import Any, Dict, Optional
 
-import stripe
+try:
+    import stripe  # type: ignore
+except ImportError:  # pragma: no cover - entorno sin stripe instalado
+    stripe = None
 from django.conf import settings
 
 from pedidos.models import Pedido
@@ -18,7 +21,7 @@ class StripeGatewayError(Exception):
 
 
 def is_enabled() -> bool:
-    return bool(settings.STRIPE_SECRET_KEY and settings.STRIPE_PUBLISHABLE_KEY)
+    return bool(stripe and settings.STRIPE_SECRET_KEY and settings.STRIPE_PUBLISHABLE_KEY)
 
 
 def _configure_stripe() -> None:
@@ -35,6 +38,8 @@ def _amount_to_cents(amount: Decimal) -> int:
 
 
 def ensure_payment_intent(pedido: Pedido) -> stripe.PaymentIntent:
+    if stripe is None:
+        raise StripeGatewayError("Stripe no está instalado en este entorno.")
     if not is_enabled():
         raise StripeGatewayError("Stripe no está habilitado en este entorno.")
 
@@ -117,6 +122,8 @@ def _finalize_payment_success(
 
 
 def construct_event(payload: bytes, signature: str) -> stripe.Event:
+    if stripe is None:
+        raise StripeGatewayError("Stripe no está instalado en este entorno.")
     if not settings.STRIPE_WEBHOOK_SECRET:
         raise StripeGatewayError("Falta configurar STRIPE_WEBHOOK_SECRET para procesar webhooks.")
 
@@ -133,6 +140,8 @@ def construct_event(payload: bytes, signature: str) -> stripe.Event:
 
 
 def handle_event(event: stripe.Event) -> bool:
+    if stripe is None:
+        raise StripeGatewayError("Stripe no está instalado en este entorno.")
     event_type = event.get("type")
     data_object: Dict[str, Any] = event.get("data", {}).get("object", {})
     if not data_object:
@@ -195,6 +204,8 @@ def _handle_payment_intent_failed(intent_data: Dict[str, Any]) -> bool:
 
 
 def confirm_payment_intent(intent_id: str) -> bool:
+    if stripe is None:
+        raise StripeGatewayError("Stripe no está instalado en este entorno.")
     if not intent_id:
         raise StripeGatewayError("Falta el identificador del PaymentIntent.")
     if not is_enabled():
