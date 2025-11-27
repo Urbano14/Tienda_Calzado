@@ -12,9 +12,7 @@
         <div class="brand">
             <img class="brand__logo" src="{% static 'images/logoZHPfinalSinFondo.png' %}" alt="Logo Zapatería Hermanos Parera">
             <div>
-                <p class="brand__eyebrow">Búsqueda de productos</p>
-                <h1>Resultados</h1>
-                <p class="brand__tagline">Encuentra tus zapatillas favoritas por nombre, departamento o fabricante.</p>
+                <h1>Búsqueda de productos</h1>
             </div>
         </div>
         <div class="hero__actions">
@@ -24,134 +22,83 @@
     </div>
     <div class="hero__content contenedor">
         <div class="hero__text">
-            <p class="hero__lead">
-                {% if termino %}
-                    Mostrando resultados para <strong>"{{ termino }}"</strong>.
-                {% else %}
-                    Utiliza el buscador para refinar tu consulta.
-                {% endif %}
-            </p>
-            <div class="hero__search">
-                {% include "includes/buscador_global.html" with input_id="busqueda-catalogo-principal" initial_query=termino %}
-            </div>
-        </div>
-        <div class="hero__card">
-            <p>Resultados encontrados: <strong>{{ productos|length }}</strong></p>
         </div>
     </div>
 </header>
 
 <main class="contenedor seccion catalogo-busqueda">
-    <section class="layout">
-        <aside class="lateral-nav" aria-label="Filtros de búsqueda">
-            <div class="lateral-nav__header">
-                <p class="section-eyebrow">Refinar</p>
-                <h2>Filtros</h2>
+    <section class="busqueda-panel">
+        <div class="busqueda-panel__body">
+            <div>
+                <p class="section-eyebrow">Búsqueda rápida</p>
+                {% if termino %}
+                    <h2>Mostrando resultados para “{{ termino }}”</h2>
+                {% else %}
+                    <h2>Introduce un término para buscar productos</h2>
+                {% endif %}
             </div>
-
-            <div class="filtros filtros--vertical">
-                <form class="filtros__form" method="get">
-                    <input type="hidden" name="q" value="{{ termino }}">
-                    <div class="filtros__control">
-                        <label for="filtro-departamento">Departamento</label>
-                        <div class="select-wrapper select-wrapper--elevado">
-                            <select id="filtro-departamento" name="departamento" onchange="this.form.submit()">
-                                <option value="">Todos</option>
-                                {% for dept in departamentos %}
-                                    <option value="{{ dept.slug }}"
-                                        {% if filtros_contexto.departamento and filtros_contexto.departamento.id == dept.id %}selected{% endif %}
-                                    >{{ dept.nombre }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="filtros__control">
-                        <label for="filtro-seccion">Sección</label>
-                        <div class="select-wrapper select-wrapper--elevado">
-                            <select id="filtro-seccion" name="seccion" onchange="this.form.submit()">
-                                <option value="">Todas</option>
-                                {% for section in secciones %}
-                                    <option value="{{ section.slug }}"
-                                        {% if filtros_contexto.seccion and filtros_contexto.seccion.id == section.id %}selected{% endif %}
-                                    >{{ section.departamento.nombre }} → {{ section.nombre }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="filtros__control">
-                        <label for="filtro-fabricante">Fabricante</label>
-                        <div class="select-wrapper select-wrapper--elevado">
-                            <select id="filtro-fabricante" name="fabricante" onchange="this.form.submit()">
-                                <option value="">Todos</option>
-                                {% for marca in marcas %}
-                                    <option value="{{ marca.slug }}"
-                                        {% if filtros_contexto.marca and filtros_contexto.marca.id == marca.id %}selected{% endif %}
-                                    >{{ marca.nombre }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                    </div>
-                </form>
-                <a class="enlace-reset" href="{% url 'buscar-productos' %}{% if termino %}?q={{ termino|urlencode }}{% endif %}">Limpiar filtros</a>
+            <div class="hero__search">
+                {% include "includes/buscador_global.html" with input_id="busqueda-catalogo-principal" initial_query=termino %}
             </div>
-        </aside>
+        </div>
+        <div class="busqueda-panel__summary">
+            <p>Resultados encontrados: <strong>{{ num_resultados }}</strong></p>
+        </div>
+    </section>
 
-        <section class="catalogo-principal">
-            {% if productos %}
-                <div class="grid catalogo__grid">
-                    {% for producto in productos %}
-                        <article class="tarjeta producto {% if producto.stock|default:0 <= 0 %}producto--agotado{% endif %}">
-                            <a class="producto__imagen" href="{% url 'detalle-producto' producto.id %}">
-                                {% with thumb=producto.imagen_destacada %}
-                                    {% if thumb %}
-                                        <img src="{{ thumb.imagen.url }}" alt="{{ producto.nombre }}">
-                                    {% else %}
-                                        <img src="{% static 'images/placeholder.svg' %}" alt="Sin imagen disponible">
-                                    {% endif %}
-                                {% endwith %}
-                                {% if producto.stock|default:0 <= 0 %}
-                                    <span class="producto__badge producto__badge--agotado">Agotado</span>
+    <section class="catalogo-principal catalogo-principal--full">
+        {% if productos %}
+            <div class="grid catalogo__grid">
+                {% for producto in productos %}
+                    <article class="tarjeta producto {% if producto.stock|default:0 <= 0 %}producto--agotado{% endif %}">
+                        <a class="producto__imagen" href="{% url 'detalle-producto' producto.id %}">
+                            {% with thumb=producto.imagen_destacada %}
+                                {% if thumb %}
+                                    <img src="{{ thumb.imagen.url }}" alt="{{ producto.nombre }}">
+                                {% else %}
+                                    <img src="{% static 'images/placeholder.svg' %}" alt="Sin imagen disponible">
                                 {% endif %}
-                            </a>
-                            <div class="producto__contenido">
-                                <p class="producto__categoria">{{ producto.categoria.seccion.departamento.nombre }} → {{ producto.categoria.nombre }}</p>
-                                <h2>
-                                    <a href="{% url 'detalle-producto' producto.id %}">
-                                        {{ producto.nombre }}
-                                    </a>
-                                </h2>
-                                <div class="producto__precio">
-                                    {% if producto.precio_oferta %}
-                                        <span class="precio-actual">{{ producto.precio_oferta }} €</span>
-                                        <span class="precio-tachado">{{ producto.precio }} €</span>
-                                    {% else %}
-                                        <span class="precio-actual">{{ producto.precio }} €</span>
-                                    {% endif %}
-                                </div>
-                                <div class="producto__acciones">
-                                    <a class="boton boton--outline" href="{% url 'detalle-producto' producto.id %}">Ver detalles</a>
-                                </div>
-                                <form class="busqueda-add-form" action="{% url 'agregar-al-carrito' producto.id %}" method="post">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="cantidad" value="1">
-                                    <button class="boton boton--ghost" type="submit">Añadir a la cesta</button>
-                                </form>
+                            {% endwith %}
+                            {% if producto.stock|default:0 <= 0 %}
+                                <span class="producto__badge producto__badge--agotado">Agotado</span>
+                            {% endif %}
+                        </a>
+                        <div class="producto__contenido">
+                            <p class="producto__categoria">{{ producto.categoria.seccion.departamento.nombre }} → {{ producto.categoria.nombre }}</p>
+                            <h2>
+                                <a href="{% url 'detalle-producto' producto.id %}">
+                                    {{ producto.nombre }}
+                                </a>
+                            </h2>
+                            <div class="producto__precio">
+                                {% if producto.precio_oferta %}
+                                    <span class="precio-actual">{{ producto.precio_oferta }} €</span>
+                                    <span class="precio-tachado">{{ producto.precio }} €</span>
+                                {% else %}
+                                    <span class="precio-actual">{{ producto.precio }} €</span>
+                                {% endif %}
                             </div>
-                        </article>
-                    {% endfor %}
+                            <div class="producto__acciones">
+                                <a class="boton boton--outline" href="{% url 'detalle-producto' producto.id %}">Ver detalles</a>
+                            </div>
+                            <form class="busqueda-add-form" action="{% url 'agregar-al-carrito' producto.id %}" method="post">
+                                {% csrf_token %}
+                                <input type="hidden" name="cantidad" value="1">
+                                <button class="boton boton--ghost" type="submit">Añadir a la cesta</button>
+                            </form>
+                        </div>
+                    </article>
+                {% endfor %}
+            </div>
+        {% else %}
+            <section class="estado-vacio">
+                <div>
+                    <p>No encontramos productos que coincidan con tu búsqueda.</p>
+                    <p>Prueba con otro término.</p>
+                    <a class="boton" href="{% url 'buscar-productos' %}">Nueva búsqueda</a>
                 </div>
-            {% else %}
-                <section class="estado-vacio">
-                    <div>
-                        <p>No encontramos productos que coincidan con tu búsqueda.</p>
-                        <p>Prueba con otro término o restablece los filtros.</p>
-                        <a class="boton" href="{% url 'buscar-productos' %}">Nueva búsqueda</a>
-                    </div>
-                </section>
-            {% endif %}
-        </section>
+            </section>
+        {% endif %}
     </section>
 </main>
 

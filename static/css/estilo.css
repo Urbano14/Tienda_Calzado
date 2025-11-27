@@ -246,8 +246,67 @@ a {
     margin-bottom: 1.5rem;
 }
 
-.landing-search {
-    margin: 1.25rem 0 1.5rem;
+.action-buttons {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    flex-wrap: wrap;
+    margin: 1.5rem 0;
+}
+
+.action-buttons__search {
+    flex: 1 1 260px;
+}
+
+.action-buttons .buscador-global__input {
+    height: 52px;
+}
+
+.action-buttons .boton,
+.action-buttons .buscador-global__button {
+    min-height: 52px;
+}
+
+@media (max-width: 768px) {
+    .action-buttons {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .action-buttons__search {
+        width: 100%;
+    }
+}
+
+.busqueda-panel {
+    background: var(--color-superficie);
+    border-radius: var(--radio);
+    padding: 2rem;
+    box-shadow: var(--sombra);
+    margin-top: 2rem;
+}
+
+.busqueda-panel__body {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.busqueda-panel__summary {
+    margin-top: 1.25rem;
+    color: var(--color-muted);
+}
+
+.catalogo-principal--full {
+    margin-top: 2.5rem;
+}
+
+@media (max-width: 768px) {
+    .busqueda-panel {
+        padding: 1.5rem;
+    }
 }
 
 .hero__cta {

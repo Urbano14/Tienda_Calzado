@@ -64,6 +64,49 @@ def apply_catalog_filters(queryset, filtros):
     return queryset, context
 
 
+def apply_text_search(queryset, termino):
+    if not termino:
+        return queryset
+
+    termino = termino.strip()
+    matched = False
+
+    departamento_ids = list(
+        Departamento.objects.filter(nombre__icontains=termino).values_list("id", flat=True)
+    )
+    if departamento_ids:
+        queryset = queryset.filter(categoria__seccion__departamento_id__in=departamento_ids)
+        matched = True
+
+    seccion_ids = list(
+        Seccion.objects.filter(nombre__icontains=termino).values_list("id", flat=True)
+    )
+    if seccion_ids:
+        queryset = queryset.filter(categoria__seccion_id__in=seccion_ids)
+        matched = True
+
+    categoria_ids = list(
+        Categoria.objects.filter(nombre__icontains=termino).values_list("id", flat=True)
+    )
+    if categoria_ids:
+        queryset = queryset.filter(categoria_id__in=categoria_ids)
+        matched = True
+
+    marca_ids = list(
+        Marca.objects.filter(nombre__icontains=termino).values_list("id", flat=True)
+    )
+    if marca_ids:
+        queryset = queryset.filter(marca_id__in=marca_ids)
+        matched = True
+
+    if not matched:
+        queryset = queryset.filter(
+            Q(nombre__icontains=termino) | Q(descripcion__icontains=termino)
+        )
+
+    return queryset
+
+
 def _build_querystring(base_params, path, **updates):
     params = {k: v for k, v in base_params.items() if v}
     for key, value in updates.items():
@@ -104,13 +147,7 @@ class ProductoListView(generics.ListAPIView):
             or self.request.query_params.get("q")
         )
         if termino:
-            termino = termino.strip()
-            search_filter = Q(nombre__icontains=termino)
-            search_filter |= Q(categoria__nombre__icontains=termino)
-            search_filter |= Q(categoria__seccion__nombre__icontains=termino)
-            search_filter |= Q(categoria__seccion__departamento__nombre__icontains=termino)
-            search_filter |= Q(marca__nombre__icontains=termino)
-            queryset = queryset.filter(search_filter)
+            queryset = apply_text_search(queryset, termino)
 
         return queryset
 
@@ -265,13 +302,6 @@ def lista_productos(request):
 
 
 def buscar_productos(request):
-    filtros = {
-        "departamento": request.GET.get("departamento"),
-        "seccion": request.GET.get("seccion"),
-        "categoria": request.GET.get("categoria"),
-        "fabricante": request.GET.get("fabricante"),
-    }
-
     productos = (
         Producto.objects.select_related(
             "categoria",
@@ -281,53 +311,17 @@ def buscar_productos(request):
         ).prefetch_related("imagenes")
     )
 
-    productos, filtros_contexto = apply_catalog_filters(productos, filtros)
-
     termino = (request.GET.get("q") or "").strip()
     if termino:
-        search_filter = Q(nombre__icontains=termino)
-        search_filter |= Q(categoria__nombre__icontains=termino)
-        search_filter |= Q(categoria__seccion__nombre__icontains=termino)
-        search_filter |= Q(categoria__seccion__departamento__nombre__icontains=termino)
-        search_filter |= Q(marca__nombre__icontains=termino)
-        productos = productos.filter(search_filter)
+        productos = apply_text_search(productos, termino)
 
     productos = productos.order_by("nombre")
-
-    departamentos = (
-        Departamento.objects.exclude(nombre__in=HIDDEN_DEPARTAMENTOS)
-        .prefetch_related(
-            Prefetch(
-                "secciones",
-                queryset=Seccion.objects.exclude(nombre__in=HIDDEN_SECCIONES).order_by(
-                    "orden", "nombre"
-                ),
-            )
-        )
-        .order_by("orden", "nombre")
-    )
-
-    secciones = (
-        Seccion.objects.select_related("departamento")
-        .exclude(nombre__in=HIDDEN_SECCIONES)
-        .order_by("departamento__orden", "orden", "nombre")
-    )
-    marcas = Marca.objects.order_by("nombre")
-
-    active_params = {k: v for k, v in filtros.items() if v}
-    if termino:
-        active_params["q"] = termino
+    total_resultados = productos.count()
 
     context = {
         "productos": productos,
         "termino": termino,
-        "departamentos": departamentos,
-        "secciones": secciones,
-        "marcas": marcas,
-        "filtros": filtros,
-        "filtros_contexto": filtros_contexto,
-        "active_params": active_params,
-        "base_path": request.path,
+        "num_resultados": total_resultados,
     }
     return render(request, "catalogo/busqueda.html", context)
 

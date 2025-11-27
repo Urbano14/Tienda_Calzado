@@ -66,6 +66,14 @@ class BusquedaCatalogoTests(TestCase):
         self.assertContains(response, self.prod_adidas.nombre)
         self.assertNotContains(response, self.prod_nike.nombre)
 
+    def test_busqueda_respecta_departamento_implicito(self):
+        self.prod_adidas.descripcion = "Zapatilla casual para running urbano"
+        self.prod_adidas.save()
+
+        response = self.client.get(self.url, {"q": "running"})
+        self.assertContains(response, self.prod_nike.nombre)
+        self.assertNotContains(response, self.prod_adidas.nombre)
+
     def test_busqueda_por_departamento(self):
         response = self.client.get(self.url, {"departamento": self.departamento.slug})
         self.assertContains(response, self.prod_nike.nombre)
