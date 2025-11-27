@@ -14,7 +14,7 @@ urlpatterns = [
     path('pedidos/', include('pedidos.urls')),
     path('api/', include('clientes.api_urls')),
     path('api/', include('pedidos.api_urls')),
-    path('pedido/seguimiento/<uuid:tracking_token>/', seguimiento_pedido, name='seguimiento_pedido'),
+    path('pedido/seguimiento/<slug:tracking_token>/', seguimiento_pedido, name='seguimiento_pedido'),
 ]
 
 # Servir MEDIA y archivos subidos por usuarios
