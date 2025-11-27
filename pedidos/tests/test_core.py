@@ -1,7 +1,9 @@
 from decimal import Decimal
+import uuid
 
 from django.contrib.auth import get_user_model
 from django.test import TestCase
+from django.urls import reverse
 from rest_framework.test import APIClient
 
 from productos.models import Producto, Marca, Categoria
@@ -28,7 +30,7 @@ class PedidoPublicAPITests(TestCase):
         # Pedido con items
         self.pedido = Pedido.objects.create(
             numero_pedido="TEST123",
-            estado=Pedido.Estados.PREPARANDO,
+            estado=Pedido.Estados.PROCESANDO,
             subtotal=Decimal("59.90"),
             impuestos=Decimal("12.58"),
             coste_entrega=Decimal("3.99"),
@@ -70,7 +72,7 @@ class PedidoPublicAPITests(TestCase):
             self.assertIn(campo, data)
 
         self.assertEqual(data["numero_pedido"], "TEST123")
-        self.assertEqual(data["estado"], Pedido.Estados.PREPARANDO)
+        self.assertEqual(data["estado"], Pedido.Estados.PROCESANDO)
 
         # Items
         self.assertIsInstance(data["items"], list)
@@ -108,7 +110,7 @@ class PedidoPublicAPITests(TestCase):
         user = User.objects.create_user(username="propietario", password="test123")
         pedido_propietario = Pedido.objects.create(
             numero_pedido="OWNER1",
-            estado=Pedido.Estados.PREPARANDO,
+            estado=Pedido.Estados.PROCESANDO,
             subtotal=Decimal("10"),
             impuestos=Decimal("2"),
             coste_entrega=Decimal("1"),
@@ -189,3 +191,49 @@ class DireccionFormateadaTests(TestCase):
         self.assertIn("41011", direccion)
         self.assertIn("Sevilla", direccion)
         self.assertIn("Referencias", direccion)
+
+
+class SeguimientoPedidoViewTests(TestCase):
+    def setUp(self):
+        marca = Marca.objects.create(nombre="Tracking Brand")
+        categoria = Categoria.objects.create(nombre="Tracking Shoes")
+        producto = Producto.objects.create(
+            nombre="Trace Runner",
+            precio=Decimal("90.00"),
+            categoria=categoria,
+            marca=marca,
+        )
+        self.pedido = Pedido.objects.create(
+            numero_pedido="TRACK001",
+            estado=Pedido.Estados.PENDIENTE,
+            subtotal=Decimal("90.00"),
+            impuestos=Decimal("18.90"),
+            coste_entrega=Decimal("4.99"),
+            descuento=Decimal("0.00"),
+            total=Decimal("113.89"),
+            metodo_pago=Pedido.MetodosPago.CONTRAREEMBOLSO,
+            direccion_envio="Calle Seguimiento 123",
+            telefono="600000111",
+        )
+        ItemPedido.objects.create(
+            pedido=self.pedido,
+            producto=producto,
+            talla="41",
+            cantidad=1,
+            precio_unitario=Decimal("90.00"),
+            total=Decimal("90.00"),
+        )
+
+    def test_seguimiento_publico_muestra_pedido(self):
+        url = reverse("seguimiento_pedido", args=[self.pedido.tracking_token])
+        resp = self.client.get(url)
+
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "Seguimiento del pedido")
+        self.assertContains(resp, self.pedido.numero_pedido)
+        self.assertContains(resp, self.pedido.direccion_envio)
+
+    def test_token_invalido_devuelve_404(self):
+        url = reverse("seguimiento_pedido", args=[uuid.uuid4()])
+        resp = self.client.get(url)
+        self.assertEqual(resp.status_code, 404)

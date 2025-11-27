@@ -1,3 +1,4 @@
+import uuid
 from decimal import Decimal
 
 from django.db import models
@@ -10,7 +11,7 @@ from productos.models import Producto
 class Pedido(models.Model):
     class Estados(models.TextChoices):
         PENDIENTE = "pendiente", _("Pendiente")
-        PREPARANDO = "preparando", _("Preparando")
+        PROCESANDO = "procesando", _("Procesando")
         ENVIADO = "enviado", _("Enviado")
         ENTREGADO = "entregado", _("Entregado")
         CANCELADO = "cancelado", _("Cancelado")
@@ -42,6 +43,12 @@ class Pedido(models.Model):
     direccion_envio = models.TextField()
     email_contacto = models.EmailField(blank=True, null=True)
     telefono = models.CharField(max_length=30)
+    tracking_token = models.UUIDField(
+        default=uuid.uuid4,
+        unique=True,
+        editable=False,
+        db_index=True,
+    )
     stripe_payment_intent_id = models.CharField(max_length=255, blank=True)
     stripe_payment_status = models.CharField(max_length=50, blank=True)
     stripe_charge_id = models.CharField(max_length=255, blank=True)
@@ -52,6 +59,25 @@ class Pedido(models.Model):
 
     def __str__(self):
         return f"{self.numero_pedido} ({self.estado})"
+
+    def save(self, *args, **kwargs):
+        if self.pk:
+            original_token = (
+                type(self)
+                .objects.filter(pk=self.pk)
+                .values_list("tracking_token", flat=True)
+                .first()
+            )
+            if original_token:
+                self.tracking_token = original_token
+            update_fields = kwargs.get("update_fields")
+            if update_fields:
+                kwargs["update_fields"] = tuple(
+                    field for field in update_fields if field != "tracking_token"
+                )
+        elif not self.tracking_token:
+            self.tracking_token = uuid.uuid4()
+        super().save(*args, **kwargs)
 
 
 class ItemPedido(models.Model):

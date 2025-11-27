@@ -60,6 +60,7 @@ class EnviarConfirmacionPedidoTests(TestCase):
         self.assertIn(str(self.pedido.total), html)
         self.assertIn(self.pedido.direccion_envio, html)
         self.assertIn(self.producto.nombre, html)
+        self.assertIn(str(self.pedido.tracking_token), html)
 
     @override_settings(EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend")
     @mock.patch("pedidos.emails.EmailMultiAlternatives.send", side_effect=Exception("SMTP down"))

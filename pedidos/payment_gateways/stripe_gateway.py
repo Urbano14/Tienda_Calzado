@@ -65,6 +65,8 @@ def ensure_payment_intent(pedido: Pedido) -> stripe.PaymentIntent:
         raise StripeGatewayError(exc.user_message or "No se pudo crear el pago en Stripe.") from exc
 
     _sync_payment_state(pedido, intent)
+    if (intent.status or "").lower() == "succeeded":
+        _finalize_payment_success(pedido, intent, sync_state=False)
     return intent
 
 
@@ -93,6 +95,25 @@ def _sync_payment_state(pedido: Pedido, intent: stripe.PaymentIntent) -> None:
 
     if updates:
         pedido.save(update_fields=updates)
+
+
+def _finalize_payment_success(
+    pedido: Pedido, intent: stripe.PaymentIntent, *, sync_state: bool = True
+) -> None:
+    if sync_state:
+        _sync_payment_state(pedido, intent)
+
+    updates: list[str] = []
+    was_pending = pedido.estado == Pedido.Estados.PENDIENTE
+    if was_pending:
+        pedido.estado = Pedido.Estados.PROCESANDO
+        updates.append("estado")
+
+    if updates:
+        pedido.save(update_fields=updates)
+
+    if was_pending:
+        disparar_confirmacion_pedido(pedido)
 
 
 def construct_event(payload: bytes, signature: str) -> stripe.Event:
@@ -146,18 +167,8 @@ def _handle_payment_intent_succeeded(intent_data: Dict[str, Any]) -> bool:
     if not pedido:
         return False
 
-    _sync_payment_state(pedido, stripe.util.convert_to_stripe_object(intent_data))
-    updates: list[str] = []
-    was_pending = pedido.estado == Pedido.Estados.PENDIENTE
-    if was_pending:
-        pedido.estado = Pedido.Estados.PREPARANDO
-        updates.append("estado")
-
-    if updates:
-        pedido.save(update_fields=updates)
-
-    if was_pending:
-        disparar_confirmacion_pedido(pedido)
+    intent_obj = stripe.util.convert_to_stripe_object(intent_data)
+    _finalize_payment_success(pedido, intent_obj, sync_state=True)
 
     logger.info(
         "Pago confirmado en Stripe para pedido %s (intent %s)",
@@ -179,5 +190,36 @@ def _handle_payment_intent_failed(intent_data: Dict[str, Any]) -> bool:
 
     logger.warning(
         "Pago fallido o cancelado en Stripe para pedido %s", pedido.numero_pedido
+    )
+    return True
+
+
+def confirm_payment_intent(intent_id: str) -> bool:
+    if not intent_id:
+        raise StripeGatewayError("Falta el identificador del PaymentIntent.")
+    if not is_enabled():
+        raise StripeGatewayError("Stripe no está habilitado en este entorno.")
+
+    _configure_stripe()
+    try:
+        intent = stripe.PaymentIntent.retrieve(intent_id)
+    except stripe.error.StripeError as exc:
+        logger.exception("Error consultando PaymentIntent %s: %s", intent_id, exc.user_message or str(exc))
+        raise StripeGatewayError(exc.user_message or "No se pudo verificar el estado del pago.") from exc
+
+    status = (intent.status or "").lower()
+    if status != "succeeded":
+        raise StripeGatewayError("El pago todavía no está confirmado por Stripe.")
+
+    intent_data = intent.to_dict_recursive()
+    pedido = _get_pedido_from_intent(intent_data)
+    if not pedido:
+        raise StripeGatewayError("No se encontró el pedido asociado a este pago.")
+
+    _finalize_payment_success(pedido, intent, sync_state=True)
+    logger.info(
+        "Pago confirmado manualmente para pedido %s (intent %s)",
+        pedido.numero_pedido,
+        intent.id,
     )
     return True

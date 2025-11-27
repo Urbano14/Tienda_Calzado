@@ -36,6 +36,7 @@ def _build_context(pedido: Pedido, destinatario: str) -> dict:
         "metodo_pago": pedido.get_metodo_pago_display() if hasattr(pedido, "get_metodo_pago_display") else pedido.metodo_pago,
         "direccion_envio": pedido.direccion_envio,
         "total": pedido.total,
+        "tracking_token": str(pedido.tracking_token),
     }
 
 

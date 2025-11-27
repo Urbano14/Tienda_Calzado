@@ -4,6 +4,7 @@ from django.urls import path, include, re_path
 from django.conf import settings
 from django.conf.urls.static import static
 from django.views.static import serve
+from pedidos.views import seguimiento_pedido
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -13,6 +14,7 @@ urlpatterns = [
     path('pedidos/', include('pedidos.urls')),
     path('api/', include('clientes.api_urls')),
     path('api/', include('pedidos.api_urls')),
+    path('pedido/seguimiento/<uuid:tracking_token>/', seguimiento_pedido, name='seguimiento_pedido'),
 ]
 
 # Servir MEDIA y archivos subidos por usuarios

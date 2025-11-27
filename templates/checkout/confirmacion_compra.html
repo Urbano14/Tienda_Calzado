@@ -150,10 +150,26 @@
         const submitButton = document.getElementById("stripe-submit");
         const submitLabel = submitButton.textContent;
 
+        const confirmIntentUrl = "{% url 'pedidos:stripe_confirm_intent' %}";
         const stripe = Stripe(publicKey);
         const elements = stripe.elements({clientSecret});
         const paymentElement = elements.create("payment");
         paymentElement.mount("#payment-element");
+
+        async function notifyPaymentSuccess(intentId) {
+            if (!intentId || !confirmIntentUrl) {
+                return;
+            }
+            try {
+                await fetch(confirmIntentUrl, {
+                    method: "POST",
+                    headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify({payment_intent_id: intentId})
+                });
+            } catch (err) {
+                console.error("No se pudo notificar al servidor la confirmación del pago:", err);
+            }
+        }
 
         form.addEventListener("submit", async function (event) {
             event.preventDefault();
@@ -178,6 +194,7 @@
             }
 
             if (paymentIntent && paymentIntent.status === "succeeded") {
+                notifyPaymentSuccess(paymentIntent.id);
                 messageEl.textContent = "Pago recibido. En unos instantes recibirás un correo de confirmación.";
             } else {
                 messageEl.textContent = "Estamos verificando tu pago. Te avisaremos por correo en cuanto se complete.";

@@ -1,0 +1,81 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Seguimiento del pedido</title>
+    <link rel="stylesheet" href="{% static 'css/estilo.css' %}">
+</head>
+<body class="seguimiento-body">
+<header class="site-header seguimiento-header">
+    <div class="contenedor-header">
+        <nav class="nav-simple">
+            <a href="/">Inicio</a>
+            <a href="/productos/">Catálogo</a>
+            <a href="/carrito/">Carrito</a>
+        </nav>
+    </div>
+</header>
+
+<main class="seguimiento-main">
+    <section class="pedido-card">
+        <h1>Seguimiento del pedido</h1>
+
+        {% if pedido %}
+            <div class="pedido-meta">
+                <p><span class="label">Estado actual:</span> {{ pedido.get_estado_display }}</p>
+                <p><span class="label">Número de pedido:</span> {{ pedido.numero_pedido }}</p>
+                <p><span class="label">Creado el:</span> {{ pedido.fecha_creacion|date:"d/m/Y H:i" }}</p>
+            </div>
+
+            <div class="pedido-resumen">
+                <h2>Datos de envío</h2>
+                <p>{{ pedido.direccion_envio }}</p>
+                {% if masked_phone %}
+                    <p><span class="label">Teléfono registrado:</span> {{ masked_phone }}</p>
+                {% endif %}
+            </div>
+
+            <div class="pedido-items-wrapper">
+                <h2>Artículos del pedido</h2>
+                <table class="pedido-items">
+                    <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th>Talla</th>
+                        <th>Cantidad</th>
+                        <th>Total</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for item in pedido.items.all %}
+                        <tr>
+                            <td>{{ item.producto.nombre }}</td>
+                            <td>{{ item.talla|default:"--" }}</td>
+                            <td>{{ item.cantidad }}</td>
+                            <td>{{ item.total }} &euro;</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="pedido-resumen">
+                <h2>Totales</h2>
+                <p><span class="label">Subtotal:</span> {{ pedido.subtotal }} &euro;</p>
+                <p><span class="label">Impuestos:</span> {{ pedido.impuestos }} &euro;</p>
+                <p><span class="label">Coste de entrega:</span> {{ pedido.coste_entrega }} &euro;</p>
+                <p class="pedido-total"><span class="label">Total:</span> {{ pedido.total }} &euro;</p>
+            </div>
+        {% else %}
+            <div class="seguimiento-error">
+                <p>No hemos encontrado información para este código de seguimiento.</p>
+                <a class="btn btn-primario" href="/">Volver al inicio</a>
+            </div>
+        {% endif %}
+    </section>
+</main>
+
+{% include "includes/footer_no_devoluciones.html" %}
+</body>
+</html>

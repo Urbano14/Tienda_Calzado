@@ -41,3 +41,27 @@ def pedido_detalle_publico(request, numero_pedido):
     }
     return render(request, "pedidos/detalle_pedido_publico.html", contexto)
 
+
+def _mask_phone(phone: str) -> str:
+    raw = (phone or "").strip()
+    if not raw:
+        return ""
+    digits = "".join(ch for ch in raw if ch.isdigit())
+    if len(digits) <= 4:
+        masked = "*" * len(digits)
+    else:
+        masked = "*" * (len(digits) - 4) + digits[-4:]
+    return masked
+
+
+def seguimiento_pedido(request, tracking_token):
+    pedido = get_object_or_404(
+        Pedido.objects.prefetch_related("items__producto"),
+        tracking_token=tracking_token,
+    )
+    context = {
+        "pedido": pedido,
+        "masked_phone": _mask_phone(pedido.telefono),
+    }
+    return render(request, "pedido/seguimiento.html", context)
+

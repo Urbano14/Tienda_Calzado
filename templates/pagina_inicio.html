@@ -31,13 +31,12 @@
                         <span id="landing-user-label">Sesión no iniciada</span>
                         <button type="button" class="boton boton--ghost landing-user__logout" id="logout-btn" hidden>Cerrar sesión</button>
                     </div>
-                    <a class="landing-cart-link" href="#seguimiento" aria-label="Ir a seguimiento de pedido">Seguimiento</a>
                     <a class="landing-cart-link" href="{% url 'carrito' %}" aria-label="Ir al carrito">
                         <span>Carrito</span>
                         <svg class="landing-cart-icon" viewBox="0 0 24 24" aria-hidden="true">
                             <path d="M3 4h2l2.7 11.3a1.5 1.5 0 0 0 1.47 1.2h7.88a1.5 1.5 0 0 0 1.46-1.09L20.6 7H6.12"
-                                  fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
-                                  stroke-linejoin="round" />
+                                fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
+                                stroke-linejoin="round" />
                             <circle cx="10" cy="20" r="1.4" />
                             <circle cx="17" cy="20" r="1.4" />
                         </svg>
@@ -103,7 +102,7 @@
                     </article>
                     <article class="landing-card" id="seguimiento-card">
                         <h3>Seguimiento de pedido</h3>
-                        <p>Consulta el estado de tu compra con tu número de pedido.</p>
+                        <p>Consulta el estado de tu compra con tu código de seguimiento.</p>
                         <a href="#seguimiento">Ir a seguimiento</a>
                     </article>
                 </div>
@@ -161,9 +160,9 @@
                 <div class="landing-panel">
                     <p class="section-eyebrow">Seguimiento</p>
                     <h2 class="section-heading">Consulta tu pedido</h2>
-                    <form class="landing-form" data-seguimiento-form action="{% url 'pedidos:api-pedido-detalle' numero_pedido='PLACEHOLDER' %}" method="get">
-                        <input type="text" name="numero_pedido" placeholder="Número de pedido" required>
-                        <button class="boton" type="submit">Ver pedido</button>
+                    <form class="landing-form" data-seguimiento-form>
+                        <input type="text" name="tracking_token" placeholder="Código de seguimiento" required>
+                        <button class="boton" type="submit">Ver seguimiento</button>
                     </form>
                     <div class="seguimiento-alert" data-seguimiento-alert hidden>
                         <div class="seguimiento-alert__card" role="alertdialog" aria-live="assertive">
@@ -217,7 +216,7 @@
                     </article>
                     <article class="landing-contact-card">
                         <h3>Email</h3>
-                        <p>zapateriahp@hermanosparera.com</p>
+                        <p>zapateriahermanosparera@gmail.com</p>
                         <p>Para todo tipo de consultas.</p>
                     </article>
                 </div>
@@ -343,38 +342,17 @@
                 }
             });
 
-            seguimientoForm?.addEventListener('submit', async (event) => {
+            seguimientoForm?.addEventListener('submit', (event) => {
                 event.preventDefault();
-                const numeroInput = seguimientoForm.numero_pedido;
-                const numero = (numeroInput?.value || "").trim();
-                if (!numero) {
-                    showSeguimientoAlert("Introduce el número de pedido.");
+                const tokenInput = seguimientoForm.tracking_token;
+                const token = (tokenInput?.value || "").trim();
+                if (!token) {
+                    showSeguimientoAlert("Introduce el código de seguimiento.");
                     return;
                 }
 
-                const encoded = encodeURIComponent(numero);
-                const apiUrl = `/api/pedidos/${encoded}/`;
-
-                try {
-                    const response = await fetch(apiUrl, {
-                        headers: { Accept: "application/json" },
-                        credentials: "same-origin",
-                    });
-
-                    if (!response.ok) {
-                        if (response.status === 404) {
-                            throw new Error("No encontramos un pedido con ese número.");
-                        }
-                        if (response.status === 403) {
-                            throw new Error("Ese pedido está asociado a otra cuenta. Inicia sesión con la cuenta correcta.");
-                        }
-                        throw new Error("No pudimos recuperar el pedido. Inténtalo de nuevo.");
-                    }
-
-                    window.location.href = `/pedidos/${encoded}/`;
-                } catch (error) {
-                    showSeguimientoAlert(error.message || "Ocurrió un error inesperado.");
-                }
+                const encoded = encodeURIComponent(token);
+                window.location.href = `/pedido/seguimiento/${encoded}/`;
             });
 
             document.addEventListener('keydown', (event) => {
