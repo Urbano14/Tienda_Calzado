@@ -1,0 +1,44 @@
+{% extends "admin_panel/base.html" %}
+{% block title %}Productos{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h4 mb-0">Productos</h1>
+    <a href="{% url 'admin_panel:producto_crear' %}" class="btn btn-primary">Nuevo producto</a>
+</div>
+<form class="input-group mb-3" method="get">
+    <input type="text" class="form-control" placeholder="Buscar por nombre" name="q" value="{{ termino }}">
+    <button class="btn btn-outline-secondary" type="submit">Buscar</button>
+</form>
+<div class="card">
+    <div class="table-responsive">
+        <table class="table align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Nombre</th>
+                    <th>Marca</th>
+                    <th>Categoría</th>
+                    <th>Stock</th>
+                    <th>Destacado</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for producto in productos %}
+                    <tr>
+                        <td>{{ producto.nombre }}</td>
+                        <td>{{ producto.marca }}</td>
+                        <td>{{ producto.categoria }}</td>
+                        <td>{{ producto.stock }}</td>
+                        <td>{% if producto.es_destacado %}Sí{% else %}No{% endif %}</td>
+                        <td class="text-end">
+                            <a class="btn btn-sm btn-outline-primary" href="{% url 'admin_panel:producto_editar' producto.pk %}">Editar</a>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="6" class="text-center py-3">No hay productos.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework.authtoken',
+    'admin_panel',
     'clientes',
     'productos',
     'carrito',
@@ -199,6 +200,9 @@ SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 SECURE_HSTS_SECONDS = 60 if FORCE_HTTPS else 0
 SECURE_HSTS_INCLUDE_SUBDOMAINS = FORCE_HTTPS
 SECURE_HSTS_PRELOAD = FORCE_HTTPS
+
+LOGIN_URL = "/panel/login/"
+LOGIN_REDIRECT_URL = "/panel/"
 
 
 print("=== EMAIL CONFIG EN PRODUCCIÓN ===")

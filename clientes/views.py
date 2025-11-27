@@ -3,10 +3,13 @@ from rest_framework.authtoken.models import Token
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
 
 from .serializers import LoginSerializer, RegistroSerializer
 
 
+@method_decorator(csrf_exempt, name="dispatch")
 class RegistroView(APIView):
     permission_classes = [AllowAny]
 
@@ -22,6 +25,7 @@ class RegistroView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+@method_decorator(csrf_exempt, name="dispatch")
 class LoginView(APIView):
     permission_classes = [AllowAny]
 

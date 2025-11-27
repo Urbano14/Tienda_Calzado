@@ -252,6 +252,13 @@
                 }
             };
 
+            const getCookie = (name) => {
+                const value = `; ${document.cookie}`;
+                const parts = value.split(`; ${name}=`);
+                if (parts.length === 2) return parts.pop().split(";").shift();
+                return "";
+            };
+
             const handleAuthSubmit = (formId, msgId, endpoint) => {
                 const form = document.getElementById(formId);
                 const msg = document.getElementById(msgId);
@@ -274,6 +281,7 @@
                             method: "POST",
                             headers: {
                                 "Content-Type": "application/json",
+                                "X-CSRFToken": getCookie("csrftoken"),
                             },
                             body: JSON.stringify({ email, password }),
                         });

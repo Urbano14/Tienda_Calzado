@@ -1,0 +1,30 @@
+{% extends "admin_panel/base.html" %}
+{% block title %}Panel{% endblock %}
+{% block content %}
+<div class="row g-3">
+    <div class="col-12 col-md-6 col-lg-3">
+        <div class="card p-3">
+            <small class="text-muted">Productos publicados</small>
+            <div class="fs-2 fw-semibold">{{ productos_total }}</div>
+        </div>
+    </div>
+    <div class="col-12 col-md-6 col-lg-3">
+        <div class="card p-3">
+            <small class="text-muted">Pedidos pendientes</small>
+            <div class="fs-2 fw-semibold text-warning">{{ pedidos_pendientes }}</div>
+        </div>
+    </div>
+    <div class="col-12 col-md-6 col-lg-3">
+        <div class="card p-3">
+            <small class="text-muted">Pedidos enviados</small>
+            <div class="fs-2 fw-semibold text-info">{{ pedidos_enviados }}</div>
+        </div>
+    </div>
+    <div class="col-12 col-md-6 col-lg-3">
+        <div class="card p-3">
+            <small class="text-muted">Pedidos entregados</small>
+            <div class="fs-2 fw-semibold text-success">{{ pedidos_entregados }}</div>
+        </div>
+    </div>
+</div>
+{% endblock %}

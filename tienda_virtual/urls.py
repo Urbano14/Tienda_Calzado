@@ -12,6 +12,7 @@ urlpatterns = [
     path('carrito/', include('carrito.urls')),
     path('clientes/', include('clientes.urls')),
     path('pedidos/', include('pedidos.urls')),
+    path('panel/', include('admin_panel.urls')),
     path('api/', include('clientes.api_urls')),
     path('api/', include('pedidos.api_urls')),
     path('pedido/seguimiento/<slug:tracking_token>/', seguimiento_pedido, name='seguimiento_pedido'),
