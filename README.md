@@ -17,6 +17,13 @@ Guía rápida
 - `python manage.py loaddata productos`
 - `python manage.py runserver`
 
+4) En caso de que no funcionenbien los seeders, hacer los siguientes comandos:
+- `Remove-Item .\db.sqlite3`
+- `python manage.py migrate`
+- `python manage.py loaddata productos`
+- `python manage.py seed_data`
+- `python manage.py runserver`
+
 Rutas disponibles
 - Listado HTML de productos: http://127.0.0.1:8000/productos/
 - Detalle de producto: http://127.0.0.1:8000/productos/<id>/
