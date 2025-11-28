@@ -27,6 +27,10 @@
                     <a href="{% url 'home' %}#contacto">Contacto</a>
                 </div>
                 <div class="landing-navbar__actions">
+                    <div class="landing-auth-buttons" id="landing-auth-buttons">
+                        <a class="boton boton--ghost" href="#identificacion-panel" data-login-btn>Iniciar sesión</a>
+                        <a class="boton boton--outline" href="#registro-panel" data-register-btn>Registrarme</a>
+                    </div>
                     <div class="landing-user" id="landing-user" aria-live="polite">
                         <span id="landing-user-label">Sesión no iniciada</span>
                         <button type="button" class="boton boton--ghost landing-user__logout" id="logout-btn" hidden>Cerrar sesión</button>
@@ -233,11 +237,28 @@
             const apiBase = "/api/";
             const userLabel = document.getElementById("landing-user-label");
             const logoutBtn = document.getElementById("logout-btn");
+            const authButtons = document.getElementById("landing-auth-buttons");
+            const loginBtn = document.querySelector('[data-login-btn]');
+            const registerBtn = document.querySelector('[data-register-btn]');
+            const loginForm = document.getElementById("login-form");
+            const registroForm = document.getElementById("registro-form");
+            const loginMsg = document.getElementById("login-msg");
+            const registroMsg = document.getElementById("registro-msg");
 
             const setMessage = (el, text, ok = false) => {
                 if (!el) return;
                 el.textContent = text || "";
                 el.style.color = ok ? "green" : "red";
+            };
+
+            const resetAuthForms = (options = {}) => {
+                const { clearMessages = false } = options;
+                loginForm?.reset();
+                registroForm?.reset();
+                if (clearMessages) {
+                    setMessage(loginMsg, "");
+                    setMessage(registroMsg, "");
+                }
             };
 
             const updateUserUI = () => {
@@ -246,9 +267,15 @@
                 if (token) {
                     userLabel.textContent = email ? `Sesión: ${email}` : "Sesión iniciada";
                     logoutBtn.hidden = false;
+                    if (authButtons) authButtons.hidden = true;
+                    if (loginBtn) loginBtn.setAttribute('aria-hidden', 'true');
+                    if (registerBtn) registerBtn.setAttribute('aria-hidden', 'true');
                 } else {
                     userLabel.textContent = "Sesión no iniciada";
                     logoutBtn.hidden = true;
+                    if (authButtons) authButtons.hidden = false;
+                    if (loginBtn) loginBtn.removeAttribute('aria-hidden');
+                    if (registerBtn) registerBtn.removeAttribute('aria-hidden');
                 }
             };
 
@@ -306,7 +333,9 @@
                                 : "Inicio de sesión correcto. Token guardado.",
                             true
                         );
+                        resetAuthForms();
                         updateUserUI();
+                        window.scrollTo({ top: 0, behavior: "smooth" });
                     } catch (err) {
                         setMessage(msg, "Error de conexión. Inténtalo de nuevo.");
                     }
@@ -318,6 +347,7 @@
                     localStorage.removeItem("token");
                     localStorage.removeItem("email");
                     updateUserUI();
+                    resetAuthForms({ clearMessages: true });
                 });
             }
 
