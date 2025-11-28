@@ -1,10 +1,11 @@
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth import login as auth_login
 from rest_framework import status
 from rest_framework.authtoken.models import Token
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from django.utils.decorators import method_decorator
-from django.views.decorators.csrf import csrf_exempt
 
 from .serializers import LoginSerializer, RegistroSerializer
 
@@ -33,6 +34,7 @@ class LoginView(APIView):
         serializer = LoginSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.validated_data["user"]
+            auth_login(request, user)
             token, _ = Token.objects.get_or_create(user=user)
             return Response(
                 {"token": token.key, "email": user.email},

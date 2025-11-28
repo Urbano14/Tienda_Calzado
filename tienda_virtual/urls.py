@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.contrib.auth import views as auth_views
 from django.urls import path, include, re_path
 
 from django.conf import settings
@@ -16,6 +17,7 @@ urlpatterns = [
     path('api/', include('clientes.api_urls')),
     path('api/', include('pedidos.api_urls')),
     path('pedido/seguimiento/<slug:tracking_token>/', seguimiento_pedido, name='seguimiento_pedido'),
+    path('accounts/logout/', auth_views.LogoutView.as_view(), name='logout'),
 ]
 
 # Servir MEDIA y archivos subidos por usuarios

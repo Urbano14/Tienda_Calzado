@@ -33,6 +33,7 @@
                     </div>
                     <div class="landing-user" id="landing-user" aria-live="polite">
                         <span id="landing-user-label">Sesión no iniciada</span>
+                        <a class="boton boton--ghost landing-user__profile" href="/clientes/perfil/" id="perfil-btn" hidden>Mi perfil</a>
                         <button type="button" class="boton boton--ghost landing-user__logout" id="logout-btn" hidden>Cerrar sesión</button>
                     </div>
                     <a class="landing-cart-link" href="{% url 'carrito' %}" aria-label="Ir al carrito">
@@ -237,6 +238,7 @@
             const apiBase = "/api/";
             const userLabel = document.getElementById("landing-user-label");
             const logoutBtn = document.getElementById("logout-btn");
+            const profileBtn = document.getElementById("perfil-btn");
             const authButtons = document.getElementById("landing-auth-buttons");
             const loginBtn = document.querySelector('[data-login-btn]');
             const registerBtn = document.querySelector('[data-register-btn]');
@@ -267,12 +269,14 @@
                 if (token) {
                     userLabel.textContent = email ? `Sesión: ${email}` : "Sesión iniciada";
                     logoutBtn.hidden = false;
+                    if (profileBtn) profileBtn.hidden = false;
                     if (authButtons) authButtons.hidden = true;
                     if (loginBtn) loginBtn.setAttribute('aria-hidden', 'true');
                     if (registerBtn) registerBtn.setAttribute('aria-hidden', 'true');
                 } else {
                     userLabel.textContent = "Sesión no iniciada";
                     logoutBtn.hidden = true;
+                    if (profileBtn) profileBtn.hidden = true;
                     if (authButtons) authButtons.hidden = false;
                     if (loginBtn) loginBtn.removeAttribute('aria-hidden');
                     if (registerBtn) registerBtn.removeAttribute('aria-hidden');

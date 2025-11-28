@@ -1,0 +1,46 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Mi perfil</title>
+    <link rel="stylesheet" href="{% static 'css/estilo.css' %}">
+</head>
+<body class="catalogo">
+<header class="hero hero--detalle">
+    <div class="hero__nav contenedor">
+        <a href="/" class="logo-texto">ZHP Store</a>
+        <nav class="nav-simple">
+            <a href="/">Inicio</a>
+            <a href="/productos/">Catálogo</a>
+        </nav>
+    </div>
+</header>
+
+<main class="contenedor layout-dos-columnas">
+    <section class="checkout-main">
+        <h1>Mis datos de entrega y pago</h1>
+        <form method="post">
+            {% csrf_token %}
+            <div class="formulario">
+                {% for field in form %}
+                    <div class="formulario__campo">
+                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.help_text %}
+                            <small class="formulario__ayuda">{{ field.help_text }}</small>
+                        {% endif %}
+                        {% for error in field.errors %}
+                            <p class="formulario__error">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+            </div>
+            <button class="boton" type="submit">Guardar cambios</button>
+        </form>
+    </section>
+</main>
+
+{% include "includes/footer_no_devoluciones.html" %}
+</body>
+</html>
