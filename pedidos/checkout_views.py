@@ -8,6 +8,7 @@ from django.shortcuts import redirect, render
 from django.views import View
 
 from carrito.utils import obtener_o_crear_carrito
+from clientes.models import Cliente
 from pedidos.models import Pedido
 from pedidos.services import crear_pedido_desde_carrito
 from pedidos.payment_gateways import stripe_gateway
@@ -114,6 +115,16 @@ class DetallesEntregaView(CheckoutBaseView):
         if form.is_valid():
             request.session[CHECKOUT_ENTREGA_SESSION_KEY] = form.cleaned_data
             request.session.modified = True
+            if request.user.is_authenticated:
+                cliente, _ = Cliente.objects.get_or_create(user=request.user)
+                cliente.nombre_completo = form.cleaned_data.get("nombre", "")
+                cliente.apellidos = form.cleaned_data.get("apellidos", "")
+                cliente.direccion = form.cleaned_data.get("direccion", "")
+                cliente.ciudad = form.cleaned_data.get("ciudad", "")
+                cliente.codigo_postal = form.cleaned_data.get("codigo_postal", "")
+                cliente.provincia = form.cleaned_data.get("provincia", "")
+                cliente.telefono = form.cleaned_data.get("telefono", "")
+                cliente.save()
             return redirect("pedidos:checkout_pago")
 
         return render(request, self.template_name, {"form": form})
@@ -123,14 +134,31 @@ class DetallesEntregaView(CheckoutBaseView):
         data = request.session.get(CHECKOUT_ENTREGA_SESSION_KEY)
         if data:
             return data
+        initial = {"pais": "España"}
         if request.user.is_authenticated:
-            return {
-                "nombre": request.user.first_name or request.user.username,
-                "apellidos": request.user.last_name,
-                "email": request.user.email,
-                "pais": "España",
-            }
-        return {"pais": "España"}
+            initial.update(
+                {
+                    "nombre": request.user.first_name or request.user.username,
+                    "apellidos": request.user.last_name,
+                    "email": request.user.email,
+                }
+            )
+            try:
+                cliente = request.user.cliente
+                initial.update(
+                    {
+                        "nombre": cliente.nombre_completo or initial.get("nombre"),
+                        "apellidos": cliente.apellidos or initial.get("apellidos"),
+                        "direccion": cliente.direccion,
+                        "ciudad": cliente.ciudad,
+                        "codigo_postal": cliente.codigo_postal,
+                        "provincia": cliente.provincia,
+                        "telefono": cliente.telefono,
+                    }
+                )
+            except Cliente.DoesNotExist:
+                pass
+        return initial
 
 
 class DetallesPagoView(CheckoutBaseView):
@@ -139,6 +167,7 @@ class DetallesPagoView(CheckoutBaseView):
     require_entrega = True
 
     def get(self, request, *args, **kwargs):
+        # Si se añaden más métodos de pago, aquí se puede precargar el preferido del cliente autenticado.
         form = self.form_class(initial=request.session.get(CHECKOUT_PAGO_SESSION_KEY))
         return render(request, self.template_name, {"form": form})
 
