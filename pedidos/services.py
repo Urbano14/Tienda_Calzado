@@ -40,11 +40,19 @@ def calcular_totales(items: Iterable[Dict], descuento: Decimal | None = None) ->
         descuento = subtotal
 
     iva = Decimal(str(getattr(settings, 'PEDIDOS_IVA', '0.21')))
-    coste_entrega = _as_decimal(getattr(settings, 'PEDIDOS_COSTE_ENTREGA', Decimal('0')))
+    envio_gratis_desde = _as_decimal(getattr(settings, 'ENVIO_GRATIS_DESDE', Decimal('0')))
+    coste_envio_estandar = _as_decimal(
+        getattr(settings, 'COSTE_ENVIO_ESTANDAR', getattr(settings, 'PEDIDOS_COSTE_ENTREGA', Decimal('0')))
+    )
+
+    if subtotal >= envio_gratis_desde:
+        coste_entrega = _as_decimal(Decimal('0'))
+    else:
+        coste_entrega = coste_envio_estandar
 
     base = subtotal - descuento
     impuestos = _as_decimal(base * iva)
-    total = _as_decimal(base + impuestos + coste_entrega)
+    total = _as_decimal(subtotal + impuestos + coste_entrega - descuento)
 
     return {
         'subtotal': subtotal,

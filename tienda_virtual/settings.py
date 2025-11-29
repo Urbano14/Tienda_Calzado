@@ -155,6 +155,8 @@ else:
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 PEDIDOS_IVA = os.getenv('PEDIDOS_IVA', '0.21')
 PEDIDOS_COSTE_ENTREGA = os.getenv('PEDIDOS_COSTE_ENTREGA', '5.00')
+ENVIO_GRATIS_DESDE = 125.00
+COSTE_ENVIO_ESTANDAR = 4.99
 
 
 def _bool_env(var_name: str, default: str = "false") -> bool:
