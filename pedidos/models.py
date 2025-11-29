@@ -20,6 +20,11 @@ class Pedido(models.Model):
         TARJETA = "tarjeta", _("Tarjeta")
         CONTRAREEMBOLSO = "contrareembolso", _("Contrareembolso")
 
+    class MetodosEntrega(models.TextChoices):
+        ESTANDAR = "estandar", _("Envío estándar (48-72h)")
+        URGENTE = "urgente", _("Envío urgente (24h)")
+        RECOGIDA = "recogida", _("Recogida en tienda")
+
     cliente = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         related_name="pedidos",
@@ -41,6 +46,11 @@ class Pedido(models.Model):
     total = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal("0"))
     metodo_pago = models.CharField(max_length=30, choices=MetodosPago.choices)
     direccion_envio = models.TextField()
+    metodo_entrega = models.CharField(
+        max_length=20,
+        choices=MetodosEntrega.choices,
+        default=MetodosEntrega.ESTANDAR,
+    )
     email_contacto = models.EmailField(blank=True, null=True)
     telefono = models.CharField(max_length=30)
     tracking_token = models.UUIDField(

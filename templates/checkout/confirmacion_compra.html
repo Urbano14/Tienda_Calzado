@@ -57,10 +57,11 @@
                         {% if entrega.pais %} · {{ entrega.pais }}{% endif %}
                     </p>
                     {% if entrega.referencias %}<p>Referencias: {{ entrega.referencias }}</p>{% endif %}
-                    <p>{{ entrega.telefono }}</p>
+                    <p><strong>Telefono:</strong> {{ entrega.telefono }}</p>
                 {% else %}
                     <p>{{ pedido.direccion_envio }}</p>
                 {% endif %}
+                <p><strong>Metodo de entrega:</strong> {{ pedido.get_metodo_entrega_display }}</p>
             </div>
 
             <table class="tabla-resumen">

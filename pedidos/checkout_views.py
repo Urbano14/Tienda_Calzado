@@ -57,6 +57,17 @@ class DetallesEntregaForm(forms.Form):
         required=False,
         widget=forms.Textarea(attrs={"rows": 3}),
     )
+    METODOS_ENTREGA = [
+        ("estandar", "Envío estándar (48-72h)"),
+        ("urgente", "Envío urgente (24h)"),
+        ("recogida", "Recogida en tienda"),
+    ]
+    metodo_entrega = forms.ChoiceField(
+        choices=METODOS_ENTREGA,
+        initial="estandar",
+        label="Método de entrega",
+        help_text="Elige cómo quieres recibir tu pedido.",
+    )
 
 
 class DetallesPagoForm(forms.Form):
@@ -222,6 +233,7 @@ class ConfirmacionCompraView(CheckoutBaseView):
             "telefono": entrega_data.get("telefono"),
             "email_contacto": entrega_data.get("email"),
             "descuento": Decimal("0"),
+            "metodo_entrega": entrega_data.get("metodo_entrega") or Pedido.MetodosEntrega.ESTANDAR,
         }
 
         payload["carrito"] = self.carrito

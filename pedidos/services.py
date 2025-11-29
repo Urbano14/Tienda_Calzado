@@ -99,6 +99,7 @@ def crear_pedido_desde_carrito(usuario: Optional[User], datos_compra: Dict) -> P
 
     descuento = datos.get('descuento') or Decimal('0')
     metodo_pago = datos['metodo_pago']
+    metodo_entrega = datos.get('metodo_entrega') or Pedido.MetodosEntrega.ESTANDAR
     direccion_envio = datos['direccion_envio']
     telefono = datos['telefono']
     email_contacto = datos.get('email_contacto')
@@ -176,6 +177,7 @@ def crear_pedido_desde_carrito(usuario: Optional[User], datos_compra: Dict) -> P
             descuento=totales['descuento'],
             total=totales['total'],
             metodo_pago=metodo_pago,
+            metodo_entrega=metodo_entrega,
             direccion_envio=direccion_envio,
             email_contacto=email_contacto,
             telefono=telefono,
